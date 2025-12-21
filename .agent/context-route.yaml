@@ -1,0 +1,532 @@
+# Smart Property Matching Assistant - Context Route
+# Ruteador Semántico / Intent Classifier v1.0
+#
+# Función: Analiza el tipo de necesidad del desarrollador y carga automáticamente
+# la documentación relevante, patrones aplicables y procedimientos adecuados.
+#
+# Categorías de Intención:
+# - debugging: Resolver problemas específicos
+# - implementation: Implementar nuevas features
+# - testing: Crear/validar tests
+# - refactor: Mejorar código existente
+# - architecture: Decisiones de diseño
+
+---
+
+# =============================================================================
+# NAVEGACIÓN POR TIPO DE NECESIDAD
+# =============================================================================
+
+by_intent:
+  debugging:
+    description: "Tengo un problema específico que resolver"
+    primary_routes:
+      - path: docs/learning-log/challenges.md
+        use_when: "Problema similar ya documentado"
+      - path: docs/ai-guidance/
+        use_when: "Problema relacionado con módulo específico"
+      - path: docs/architecture/
+        use_when: "Problema arquitectónico o de diseño"
+
+    specific_problems:
+      extraction_issues:
+        primary: docs/ai-guidance/04-anti-injection.md
+        section: "Critical Edge Cases"
+        secondary: docs/architecture/adr-002-anti-injection-strategy.md
+        context: "Phone vs Budget, Budget Format Variations"
+
+      discrepancy_detection:
+        primary: docs/ai-guidance/04-anti-injection.md
+        section: "compare_profiles implementation"
+        secondary: docs/learning-log/challenges.md
+        search_for: "discrepancy"
+        context: "LLM vs Heuristic cross-validation"
+
+      property_matching_failures:
+        primary: docs/ai-guidance/05-property-matching.md
+        section: "Scoring Algorithm"
+        secondary: docs/architecture/adr-001-demo-vs-production.md
+        context: "City requirement, empty results handling"
+
+      scenario_not_working:
+        primary: docs/ai-guidance/03-llm-adapter.md
+        section: "FakeClient Scenarios"
+        secondary: docs/architecture/adr-003-current-attributes-pattern.md
+        context: "Thread safety, CurrentAttributes setup"
+
+      test_failures:
+        primary: docs/ai-guidance/[XX]-module-name.md
+        section: "Testing Requirements"
+        secondary: docs/learning-log/iterations.md
+        context: "Module-specific test patterns"
+
+      llm_api_errors:
+        primary: docs/ai-guidance/03-llm-adapter.md
+        section: "AnthropicClient (Real API)"
+        secondary: docs/ai-guidance/04-anti-injection.md
+        section_2: "Graceful LLM failure fallback"
+        context: "API key, timeout handling, fallback to heuristic"
+
+  implementation:
+    description: "Necesito implementar algo nuevo"
+    primary_routes:
+      - path: docs/ai-guidance/[XX]-module-name.md
+        use_when: "Feature dentro de módulo existente"
+      - path: docs/architecture/
+        use_when: "Nueva feature que requiere decisión arquitectónica"
+      - path: .agent/governance.md
+        use_when: "Asegurar cumplimiento de estándares"
+
+    specific_features:
+      new_extraction_field:
+        primary: docs/ai-guidance/04-anti-injection.md
+        section: "extract_heuristic implementation"
+        secondary: docs/ai-guidance/02-domain-models.md
+        section_2: "ConversationSession jsonb schema"
+        checklist:
+          - "Add to LLM prompt (AnthropicClient system_prompt)"
+          - "Add to heuristic extraction (new extract_X method)"
+          - "Add to compare_profiles for cross-validation"
+          - "Update FakeClient scenarios with test data"
+          - "Add tests in spec/services/lead_qualifier_spec.rb"
+        context: "Follow dual-extraction pattern"
+
+      new_scenario:
+        primary: docs/ai-guidance/03-llm-adapter.md
+        section: "FakeClient SCENARIOS structure"
+        secondary: docs/ai-guidance/04-anti-injection.md
+        section_2: "Testing Requirements"
+        checklist:
+          - "Add scenario to SCENARIOS hash"
+          - "Define messages array"
+          - "Define llm_response"
+          - "Define heuristic_response"
+          - "Add test in spec/requests/runs_spec.rb"
+        context: "Maintain consistency between LLM and heuristic"
+
+      new_matching_factor:
+        primary: docs/ai-guidance/05-property-matching.md
+        section: "Scoring Algorithm"
+        secondary: docs/architecture/adr-001-demo-vs-production.md
+        checklist:
+          - "Add score_X method to PropertyMatcher"
+          - "Update calculate_score to include new factor"
+          - "Adjust point weights (total must be 100)"
+          - "Add to generate_reasons for transparency"
+          - "Update tests with new scoring validation"
+        context: "Maintain scoring transparency and 100-point scale"
+
+      new_endpoint:
+        primary: docs/ai-guidance/06-api-endpoint.md
+        section: "Controller implementation"
+        secondary: .agent/governance.md
+        section_2: "Code Quality Standards"
+        checklist:
+          - "Add route to config/routes.rb"
+          - "Create controller with error handling"
+          - "Define response structure"
+          - "Add request specs"
+          - "Document in API section"
+        context: "Follow thin controller pattern"
+
+  testing:
+    description: "Necesito crear o validar tests"
+    primary_routes:
+      - path: docs/ai-guidance/[XX]-module-name.md
+        section: "Testing Requirements"
+        use_when: "Tests para módulo específico"
+      - path: .agent/governance.md
+        section: "Testing Requirements"
+        use_when: "Coverage y estándares generales"
+
+    test_types:
+      edge_case_tests:
+        primary: docs/ai-guidance/04-anti-injection.md
+        section: "Critical Edge Cases"
+        scenarios:
+          - "phone_vs_budget: Budget extraction must ignore phone"
+          - "budget_mismatch: Discrepancy detection >20%"
+          - "missing_city: PropertyMatcher returns empty"
+        context: "Edge cases are non-negotiable for demo"
+
+      scenario_tests:
+        primary: docs/ai-guidance/03-llm-adapter.md
+        section: "FakeClient Scenarios"
+        secondary: docs/ai-guidance/06-api-endpoint.md
+        section_2: "Request Specs"
+        context: "Test via X-Scenario header"
+
+      integration_tests:
+        primary: docs/ai-guidance/06-api-endpoint.md
+        section: "Testing Requirements"
+        secondary: docs/ai-guidance/04-anti-injection.md
+        context: "Full flow: Session → LeadQualifier → PropertyMatcher"
+
+      model_tests:
+        primary: docs/ai-guidance/02-domain-models.md
+        section: "Testing Requirements"
+        focus:
+          - "JSONB defaults (discrepancies as array, not object)"
+          - "Validations and constraints"
+          - "Associations"
+        context: "Critical: discrepancies must be []"
+
+  refactor:
+    description: "Necesito mejorar código existente"
+    primary_routes:
+      - path: .agent/governance.md
+        section: "Code Quality Standards"
+      - path: docs/architecture/adr-001-demo-vs-production.md
+        use_when: "Evaluar si refactor es necesario para demo scope"
+      - path: docs/learning-log/iterations.md
+        use_when: "Documentar cambio arquitectónico"
+
+    refactor_patterns:
+      service_extraction:
+        primary: docs/ai-guidance/04-anti-injection.md
+        example: "LeadQualifier as service object pattern"
+        secondary: .agent/governance.md
+        section_2: "Rails-Specific Guidelines → Service layer"
+        context: "Single responsibility, explicit return values"
+
+      heuristic_improvement:
+        primary: docs/ai-guidance/04-anti-injection.md
+        section: "extract_heuristic + edge cases"
+        secondary: docs/architecture/adr-002-anti-injection-strategy.md
+        section_2: "Production Enhancements"
+        warning: "Don't over-engineer for demo scope"
+        context: "Maintain defensive regex approach"
+
+      scoring_algorithm:
+        primary: docs/ai-guidance/05-property-matching.md
+        section: "Scoring Algorithm"
+        secondary: docs/architecture/adr-001-demo-vs-production.md
+        warning: "ActiveRecord sufficient for demo, don't add Elasticsearch"
+        context: "Keep scoring transparent and simple"
+
+  architecture:
+    description: "Necesito tomar decisiones de diseño"
+    primary_routes:
+      - path: docs/architecture/
+        use_when: "Decisión arquitectónica significativa"
+      - path: .agent/governance.md
+        section: "Architecture Constraints"
+      - path: docs/learning-log/decisions.md
+        use_when: "Documentar decisión tomada"
+
+    decision_types:
+      demo_vs_production:
+        primary: docs/architecture/adr-001-demo-vs-production.md
+        question: "¿Esta feature es necesaria para demo o es over-engineering?"
+        matrix_section: "Demo vs Production Matrix"
+        context: "Priorizar anti-injection y matching, simplificar infraestructura"
+
+      anti_injection_strategy:
+        primary: docs/architecture/adr-002-anti-injection-strategy.md
+        question: "¿Cómo validar extracción de LLM sin ser vulnerable?"
+        decision: "Dual extraction (LLM + heuristic) con cross-validation"
+        alternatives_section: "Alternatives Considered"
+
+      state_management:
+        primary: docs/architecture/adr-003-current-attributes-pattern.md
+        question: "¿Cómo manejar escenarios thread-safe?"
+        decision: "CurrentAttributes (NO Thread.current)"
+        alternatives_section: "Alternatives Considered"
+
+      new_adr_needed:
+        template: docs/architecture/adr-001-demo-vs-production.md
+        checklist:
+          - "Context: Why is this decision needed?"
+          - "Decision: What pattern/approach chosen?"
+          - "Alternatives Considered: What else was evaluated?"
+          - "Consequences: Positive, Negative, Mitigations"
+          - "Demo vs Production: How would this scale?"
+        naming: "adr-00X-brief-description.md"
+
+# =============================================================================
+# NAVEGACIÓN POR PROBLEMA TÉCNICO ESPECÍFICO
+# =============================================================================
+
+by_technical_problem:
+  extraction_issues:
+    phone_vs_budget:
+      primary: docs/ai-guidance/04-anti-injection.md
+      section: "Critical Edge Cases → Phone vs Budget"
+      root_cause: "Both are 10-digit numbers, context required"
+      solution: "extract_budget with keyword proximity validation"
+      test: "spec/services/lead_qualifier_spec.rb → phone_vs_budget scenario"
+
+    budget_format_variations:
+      primary: docs/ai-guidance/04-anti-injection.md
+      section: "extract_budget implementation"
+      formats:
+        - '"3 millones" → 3,000,000'
+        - '"3M" → 3,000,000'
+        - '"$3,000,000" → 3,000,000'
+      context: "Regex patterns + number validation"
+
+    llm_manipulation:
+      primary: docs/architecture/adr-002-anti-injection-strategy.md
+      section: "Critical Edge Cases"
+      example: '"presupuesto 5M pero solo tengo 3M"'
+      detection: "compare_profiles → discrepancy >20%"
+      response: "needs_human_review = true"
+
+  matching_failures:
+    no_results_city_missing:
+      primary: docs/ai-guidance/05-property-matching.md
+      section: "City Requirement"
+      rule: "MANDATORY: Return [] if city missing"
+      reason: "Prevents irrelevant matches flooding results"
+      test: "spec/services/property_matcher_spec.rb → without city"
+
+    scoring_unexpected:
+      primary: docs/ai-guidance/05-property-matching.md
+      section: "Scoring Algorithm → components breakdown"
+      debug_steps:
+        - "Check score_budget calculation (40 pts max)"
+        - "Check score_bedrooms (30 pts max)"
+        - "Check score_area (20 pts max)"
+        - "Verify reasons array matches components"
+      context: "Total must be ≤100, transparent scoring"
+
+    wrong_properties_returned:
+      primary: docs/ai-guidance/05-property-matching.md
+      section: "City-based prefiltro"
+      check: "Property.active.in_city(city) scope applied?"
+      test: "Verify wrong_city fixture NOT in results"
+
+  scenario_management:
+    scenario_not_loading:
+      primary: docs/ai-guidance/03-llm-adapter.md
+      section: "FakeClient SCENARIOS"
+      secondary: docs/architecture/adr-003-current-attributes-pattern.md
+      debug_steps:
+        - "Verify X-Scenario header sent"
+        - "Check Current.scenario set in ApplicationController"
+        - "Confirm scenario name matches SCENARIOS key exactly"
+        - "Test CurrentAttributes isolation"
+      context: "Case-sensitive scenario names"
+
+    current_attributes_not_working:
+      primary: docs/architecture/adr-003-current-attributes-pattern.md
+      section: "Thread Safety Considerations"
+      check: "ApplicationController before_action :set_scenario_from_header?"
+      test: "spec/models/current_spec.rb → thread isolation"
+
+    fallback_to_real_api:
+      primary: docs/ai-guidance/03-llm-adapter.md
+      section: "FakeClient → extract_profile"
+      expected: "Falls back to AnthropicClient if scenario unknown"
+      requirement: "ANTHROPIC_API_KEY environment variable"
+
+  testing_issues:
+    test_setup_failures:
+      primary: docs/ai-guidance/01-foundation.md
+      section: "RSpec Setup"
+      secondary: .agent/governance.md
+      section_2: "Testing Requirements"
+      common_causes:
+        - "DatabaseCleaner not configured"
+        - "FactoryBot not included"
+        - "Test database not created"
+
+    factory_invalid_data:
+      primary: docs/ai-guidance/02-domain-models.md
+      section: "Model validations"
+      solution: "Ensure factories match model validation rules"
+      example: "discrepancies: [] not {}, price > 0, city present"
+
+    scenario_test_failing:
+      primary: docs/ai-guidance/04-anti-injection.md
+      section: "Testing Requirements"
+      debug:
+        - "Check Current.scenario set in test"
+        - "Verify scenario messages created correctly"
+        - "Confirm expectations match scenario definition"
+      context: "Use around block with Current.set"
+
+  database_schema:
+    jsonb_issues:
+      primary: docs/ai-guidance/02-domain-models.md
+      section: "ConversationSession jsonb fields"
+      critical: "discrepancies MUST be [] (array), NOT {} (object)"
+      reason: "Module 4 pushes objects to array: discrepancies << {}"
+      test: "spec/models/conversation_session_spec.rb → defaults"
+
+    migration_failures:
+      primary: docs/ai-guidance/02-domain-models.md
+      section: "Schema Design"
+      secondary: docs/ai-guidance/01-foundation.md
+      section_2: "PostgreSQL Configuration"
+      requirement: "PostgreSQL 9.4+ for jsonb support"
+
+    index_missing:
+      primary: docs/ai-guidance/02-domain-models.md
+      section: "Indexes"
+      performance_note: "GIN index on jsonb optional for demo, required for production"
+
+# =============================================================================
+# NAVEGACIÓN POR FASE DE PROYECTO
+# =============================================================================
+
+by_project_phase:
+  planning:
+    start_here: docs/idea/Blueprint.md
+    then:
+      - docs/architecture/adr-001-demo-vs-production.md
+      - .agent/context.md
+      - .agent/governance.md
+    focus:
+      - "Understand module scope (0-7)"
+      - "Review non-negotiable constraints"
+      - "Identify critical module (4: Anti-Injection)"
+
+  implementation:
+    current_module: docs/ai-guidance/[XX]-module-name.md
+    before_coding:
+      - "Read module guidance completely"
+      - "Check dependencies (previous modules)"
+      - "Review constraints and edge cases"
+    during_coding:
+      - "Follow implementation steps in order"
+      - "Test as you go (TDD approach)"
+      - "Document challenges in learning-log/"
+    after_coding:
+      - "Verify success criteria checklist"
+      - "Run full test suite"
+      - "Commit with module reference"
+
+  testing:
+    strategy: .agent/governance.md
+    section: "Testing Requirements"
+    module_tests: docs/ai-guidance/[XX]-module-name.md
+    section_2: "Testing Requirements"
+    coverage_target: ">80% overall, 100% for critical services"
+    critical_tests:
+      - "LeadQualifier: 100% (Module 4)"
+      - "PropertyMatcher: 100% (Module 5)"
+      - "Edge cases: phone_vs_budget, budget_mismatch"
+
+  debugging:
+    systematic_approach:
+      - path: docs/learning-log/challenges.md
+        check: "Similar problem already solved?"
+      - path: docs/ai-guidance/[XX]-module-name.md
+        section: "Constraints & Edge Cases"
+      - path: docs/architecture/
+        check: "Architectural decision causing issue?"
+      - action: "Document new challenge in learning-log/"
+
+  deployment:
+    not_applicable: "Demo scope - Docker Compose only"
+    reference: docs/architecture/adr-001-demo-vs-production.md
+    section: "Production Evolution Path"
+    context: "Document what WOULD be needed for production"
+
+# =============================================================================
+# NAVEGACIÓN POR NIVEL DE EXPERIENCIA CON EL PROYECTO
+# =============================================================================
+
+by_experience_level:
+  new_to_project:
+    start_sequence:
+      - docs/idea/Blueprint.md → "Understand overall scope"
+      - .agent/context.md → "Understand development approach"
+      - docs/architecture/ → "Understand key decisions"
+      - docs/ai-guidance/README.md → "Understand module structure"
+    then: "Pick up at current module in sequence"
+
+  regular_contributor:
+    quick_lookup:
+      - docs/ai-guidance/[XX]-module-name.md → "Module-specific guidance"
+      - .agent/context-route.yaml → "This file - intent routing"
+      - docs/learning-log/ → "Previous challenges and solutions"
+    workflow: "Module guidance → Implementation → Tests → Commit"
+
+  advanced_maintainer:
+    responsibilities:
+      - "Update learning-log/ with new challenges"
+      - "Create new ADRs for architectural decisions"
+      - "Evolve guidance based on discoveries"
+      - "Maintain governance.md standards"
+    references:
+      - .agent/governance.md
+      - docs/architecture/
+      - docs/learning-log/iterations.md
+
+# =============================================================================
+# MAPAS DE REFERENCIA CRUZADA
+# =============================================================================
+
+cross_reference_maps:
+  from_blueprint_to_code:
+    flow: "Blueprint.md → ai-guidance/[XX] → implementation → learning-log/"
+    description: "Theory → Guidance → Practice → Learning"
+
+  from_problem_to_solution:
+    flow: "context-route.yaml → ai-guidance/ → architecture/ → learning-log/"
+    description: "Problem Classification → Solution Guidance → Decision Context → Documented Learning"
+
+  from_module_to_validation:
+    flow: "ai-guidance/[XX] → Tests → Success Criteria → Next Module"
+    description: "Guidance → Implementation → Validation → Progression"
+
+# =============================================================================
+# TAGS PARA BÚSQUEDA RÁPIDA
+# =============================================================================
+
+tags:
+  by_technology:
+    anti_injection: "Module 4, ADR-002, edge cases"
+    llm_integration: "Module 3, ADR-003, FakeClient/AnthropicClient"
+    property_matching: "Module 5, scoring algorithm"
+    current_attributes: "Module 3, ADR-003, thread safety"
+    jsonb: "Module 2, PostgreSQL, schema design"
+    rspec: "Module 1, all module testing sections"
+    docker: "Module 1, foundation setup"
+
+  by_criticality:
+    critical_module: "Module 4 - Anti-Injection Core (2.5 hours)"
+    critical_constraint: "discrepancies as [], city mandatory, phone vs budget"
+    critical_test: "budget_mismatch, phone_vs_budget, missing_city"
+
+  by_easybroker_alignment:
+    clean_code: "governance.md → Code Quality Standards"
+    poodr: "Service objects pattern, single responsibility"
+    testing_culture: "All modules → Testing Requirements, >80% coverage"
+    security_mindset: "ADR-002 → Anti-Injection Strategy"
+
+# =============================================================================
+# QUICK REFERENCE CARDS
+# =============================================================================
+
+quick_reference:
+  emergency_debugging:
+    extraction_broken: "ai-guidance/04 → Critical Edge Cases"
+    tests_failing: "governance.md → Testing Requirements"
+    scenario_not_working: "adr-003 → CurrentAttributes Usage"
+
+  common_implementations:
+    new_field_extraction: "ai-guidance/04 → extract_heuristic"
+    new_scenario: "ai-guidance/03 → FakeClient SCENARIOS"
+    new_matching_factor: "ai-guidance/05 → Scoring Algorithm"
+
+  validation_checklist:
+    before_commit:
+      - "All tests pass: rspec spec/"
+      - "Success criteria checked"
+      - "Learning log updated if challenges"
+      - "Commit message references module"
+
+# =============================================================================
+# METADATA
+# =============================================================================
+
+metadata:
+  version: "1.0"
+  last_updated: "2025-12-20"
+  project: "Smart Property Matching Assistant"
+  purpose: "EasyBroker Senior Rails Engineer Demo"
+  total_modules: 8
+  current_phase: "Module 0 Complete → Module 1 Next"
