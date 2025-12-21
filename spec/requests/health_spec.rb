@@ -20,11 +20,15 @@ RSpec.describe 'Health Check', type: :request do
         allow(ActiveRecord::Base.connection).to receive(:execute).and_raise(ActiveRecord::ConnectionNotEstablished)
       end
 
-      it 'returns status with database error' do
+      it 'returns 500 status with database error' do
         get '/health'
 
+        expect(response).to have_http_status(:internal_server_error)
         json = JSON.parse(response.body)
+        expect(json['status']).to eq('error')
         expect(json['database']).to eq('disconnected')
+        expect(json).to have_key('timestamp')
+        expect(json).to have_key('version')
       end
     end
   end
