@@ -113,9 +113,11 @@ Magic numbers                      # Use constants/configs
 ## Module Development Protocol
 
 ### Module Start Checklist
-- [ ] Read docs/ai-guidance/XX-module-name.md
+- [ ] **Review CHECKLIST.md** - Verify prerequisites and module status
+- [ ] Read docs/ai-guidance/XX-module-name.md completely
 - [ ] Understand constraints and edge cases
 - [ ] Check dependencies on previous modules
+- [ ] Review previous module post-implementation notes in module-reviews.md
 - [ ] Identify tests to write first
 - [ ] Plan commit structure (1-3 commits per module)
 
@@ -125,7 +127,8 @@ Magic numbers                      # Use constants/configs
 - [ ] Code follows existing patterns
 - [ ] Logs are structured JSON
 - [ ] Commit messages are descriptive
-- [ ] Learning log updated if needed
+- [ ] **CHECKLIST.md updated** - Mark completed items
+- [ ] **module-reviews.md updated** - Post-implementation analysis added
 
 ### Module Sign-Off
 Each module requires explicit verification:
@@ -133,7 +136,13 @@ Each module requires explicit verification:
 2. Check logs: Ensure JSON structure is correct
 3. Manual test: Verify behavior matches spec
 4. Review diff: Ensure no unintended changes
-5. Update TODO: Mark module complete
+5. **Complete post-implementation review**: Document in module-reviews.md:
+   - What was implemented
+   - Blind spots discovered
+   - Deviations from guidance
+   - Lessons learned
+   - Prioritized pendientes (CRÍTICO/IMPORTANTE/OPCIONAL)
+6. **Update CHECKLIST.md**: Mark module status and update next actions
 
 ---
 
@@ -290,12 +299,14 @@ If implementation breaks existing tests:
 | Date       | Change                              | Reason                          |
 |------------|-------------------------------------|---------------------------------|
 | 2025-12-20 | Initial governance framework        | Módulo 0 setup                  |
-|            |                                     |                                 |
+| 2025-12-21 | Add CHECKLIST.md and module-reviews.md protocol | Systematic tracking and post-implementation analysis |
 
 ---
 
 ## References
 
+- **Active Tracking**: CHECKLIST.md (root) - Check FIRST before starting work
+- **Post-Implementation**: docs/learning-log/module-reviews.md - Blind spots and lessons learned
 - **Blueprint**: docs/idea/Blueprint.md
 - **AI Guidance**: docs/ai-guidance/*.md
 - **Learning Log**: docs/learning-log/challenges.md

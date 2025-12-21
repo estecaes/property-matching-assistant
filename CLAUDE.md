@@ -294,6 +294,42 @@ curl -X POST http://localhost:3000/run \
 
 **Rationale**: Focus 6-8 hour development time on core value proposition (anti-injection + matching) while maintaining production-quality patterns where they matter for senior evaluation.
 
+## Module Development Workflow
+
+This project uses a structured workflow for implementing each module:
+
+### Before Starting a Module
+
+1. **Review CHECKLIST.md** - Check prerequisites and current module status
+2. **Read module guidance** - `docs/ai-guidance/[XX]-module-name.md` completely
+3. **Check dependencies** - Ensure previous modules are complete
+4. **Plan tasks** - Use TodoWrite tool to track implementation steps
+
+### During Implementation
+
+1. **Follow TDD approach** - Write tests alongside code
+2. **Track progress** - Update TodoWrite as you complete tasks
+3. **Document challenges** - Note any issues encountered
+
+### After Module Completion
+
+1. **Update CHECKLIST.md** - Mark completed items, update status
+2. **Create post-implementation review** - Add entry to `docs/learning-log/module-reviews.md`:
+   - What was implemented
+   - Blind spots discovered
+   - Deviations from guidance
+   - Lessons learned
+3. **Verify Success Criteria** - Run all validation checks from module guidance
+4. **Commit with module reference** - Use `[ModuleX]` prefix
+
+### Critical Files for AI Development
+
+- **CHECKLIST.md** - Active tracking of all pendientes across modules (check FIRST)
+- **docs/learning-log/module-reviews.md** - Post-implementation analysis and blind spots
+- **docs/ai-guidance/[XX]-module.md** - Module-specific implementation guidance
+- **.agent/governance.md** - Development protocols and quality standards
+- **.agent/context-routes.yaml** - Semantic routing for problem-solving
+
 ## Important Context Routing
 
 For module-specific questions, see `.agent/context-route.yaml` which provides semantic routing by:
