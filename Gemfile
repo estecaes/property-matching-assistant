@@ -49,4 +49,4 @@ gem "jsonapi-serializer"
 
 # CGI gem compatibility for Ruby 3.2.3 + Alpine
 gem "cgi", ">= 0.3.6"
-gem "globalid", "~> 1.2.1"
+gem "globalid", "~> 1.3.0"
