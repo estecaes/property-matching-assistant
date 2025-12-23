@@ -2,9 +2,9 @@
 
 Quick reference for tracking progress across all modules.
 
-**Last Updated**: 2025-12-21
-**Current Phase**: Module 1 Post-Review
-**Next Action**: Complete Module 1 pendientes → Start Module 2
+**Last Updated**: 2025-12-23
+**Current Phase**: Module 1 - Final Verification
+**Next Action**: Complete remaining IMPORTANTE items → Start Module 2
 
 ---
 
@@ -60,18 +60,19 @@ Quick reference for tracking progress across all modules.
   - Completed: 2025-12-22
   - Includes: CGI/GlobalID compatibility fix for Ruby 3.2.3+Alpine
 
-- [ ] **Verify Docker Environment**
+- [x] **Verify Docker Environment** ✅
   - Priority: 🔴 CRÍTICO
   - Blocks: Module 2 start
   - Tasks:
-    - [ ] `docker-compose build` succeeds
-    - [ ] `docker-compose up` starts without errors
-    - [ ] `docker-compose run --rm app rails db:create` works
-    - [ ] `docker-compose run --rm app rspec` passes all tests
-    - [ ] `curl localhost:3000/health` returns correct JSON
-    - [ ] Logs show JSON format in `docker-compose logs app`
+    - [x] `docker-compose build` succeeds
+    - [x] `docker-compose up` starts without errors (port 3001)
+    - [x] `docker-compose run --rm app rails db:create` works
+    - [x] `docker-compose run --rm app rspec` passes all tests (3 examples, 0 failures)
+    - [x] `curl localhost:3001/health` returns correct JSON
+    - [x] Logs show JSON format in `docker-compose logs app`
+  - Completed: 2025-12-23
+  - Notes: PostgreSQL local stopped, app port changed to 3001, host authorization fixed for tests
   - Reference: docs/ai-guidance/01-foundation.md:339-346
-  - Effort: 30 minutes
 
 ### 🟡 IMPORTANTE Pendientes
 
@@ -115,8 +116,8 @@ Quick reference for tracking progress across all modules.
   - Reference: docs/ai-guidance/02-domain-models.md
   - Effort: 15 minutes
 
-**Status**: Core complete, validation pending
-**Estimated Time to Complete Pendientes**: ~2 hours
+**Status**: CRÍTICO items complete ✅, IMPORTANTE items pending
+**Estimated Time to Complete Pendientes**: ~20 minutes (optional items)
 
 ---
 
