@@ -4,6 +4,7 @@ RSpec.describe 'Health Check', type: :request do
   describe 'GET /health' do
     context 'when database is connected' do
       it 'returns status ok' do
+        host! 'localhost'
         get '/health'
 
         expect(response).to have_http_status(:ok)
@@ -21,6 +22,7 @@ RSpec.describe 'Health Check', type: :request do
       end
 
       it 'returns 500 status with database error' do
+        host! 'localhost'
         get '/health'
 
         expect(response).to have_http_status(:internal_server_error)
