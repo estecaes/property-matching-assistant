@@ -12,6 +12,9 @@ updates:
     # Keep RSpec-Rails on version 6.x for Rails 7 compatibility
     - dependency-name: "rspec-rails"
       update-types: ["version-update:semver-major"]
+    # Keep GlobalID on 1.2.1 - 1.3.0 has bug with Ruby 3.2.3 + Alpine
+    - dependency-name: "globalid"
+      versions: ["1.3.0"]
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
