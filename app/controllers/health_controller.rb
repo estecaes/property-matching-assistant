@@ -9,7 +9,7 @@ class HealthController < ApplicationController
       version: Rails.version
     }
 
-    if db_status[:database] == 'disconnected'
+    if db_status[:database] == "disconnected"
       render json: response_data, status: :internal_server_error
     else
       render json: response_data
@@ -19,10 +19,10 @@ class HealthController < ApplicationController
   private
 
   def database_status
-    ActiveRecord::Base.connection.execute('SELECT 1')
-    { status: 'ok', database: 'connected' }
+    ActiveRecord::Base.connection.execute("SELECT 1")
+    { status: "ok", database: "connected" }
   rescue StandardError => e
     Rails.logger.error("Database health check failed: #{e.message}")
-    { status: 'error', database: 'disconnected' }
+    { status: "error", database: "disconnected" }
   end
 end
