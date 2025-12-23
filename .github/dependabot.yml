@@ -5,6 +5,13 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
+  ignore:
+    # Keep Rails on version 7.x - do not upgrade to 8.x
+    - dependency-name: "rails"
+      update-types: ["version-update:semver-major"]
+    # Keep RSpec-Rails on version 6.x for Rails 7 compatibility
+    - dependency-name: "rspec-rails"
+      update-types: ["version-update:semver-major"]
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
