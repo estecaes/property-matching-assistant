@@ -225,13 +225,22 @@ end
 
 ### Commit Message Format
 ```bash
-[ModuleX] Brief description of change
+[ModuleX] Brief description of change (50 chars or less)
 
-Optional detailed explanation if needed.
-Addresses edge case or constraint from guidance.
+- Bullet point describing specific change
+- Another change if applicable
+- Fix or feature details
+- Edge case or constraint addressed
 
 References: docs/ai-guidance/XX-module.md
 ```
+
+**Guidelines**:
+- Start with module tag: `[Module0]`, `[Module1]`, etc.
+- First line: imperative mood, concise summary (≤50 chars)
+- Body: bullet points for multiple changes, or paragraph for single change
+- Always include references to relevant documentation
+- Keep it clean and professional - no decorative elements
 
 ### Module Completion Checklist
 - [ ] All tests pass: `docker-compose run --rm app rspec`
