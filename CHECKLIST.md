@@ -52,12 +52,13 @@ Quick reference for tracking progress across all modules.
 
 ### 🔴 CRÍTICO Pendientes
 
-- [ ] **Create `spec/config/logging_spec.rb`**
+- [x] **Create `spec/config/logging_spec.rb`** ✅
   - Priority: 🔴 CRÍTICO
   - Blocks: Test coverage validation
   - Location: spec/config/logging_spec.rb
   - Reference: docs/ai-guidance/01-foundation.md:316-335
-  - Effort: 15 minutes
+  - Completed: 2025-12-22
+  - Includes: CGI/GlobalID compatibility fix for Ruby 3.2.3+Alpine
 
 - [ ] **Verify Docker Environment**
   - Priority: 🔴 CRÍTICO
