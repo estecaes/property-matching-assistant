@@ -3,8 +3,8 @@
 Quick reference for tracking progress across all modules.
 
 **Last Updated**: 2025-12-26
-**Current Phase**: Module 1 - Complete ✅
-**Next Action**: Start Module 2 - Domain Models
+**Current Phase**: Module 4 - Core Complete ✅ (VCR tests pending)
+**Next Action**: Implement VCR tests OR proceed to Module 5
 
 ---
 
@@ -170,27 +170,66 @@ Quick reference for tracking progress across all modules.
 
 ---
 
-## Module 4: Anti-Injection Core ⏸️ ⭐
+## Module 4: Anti-Injection Core ✅ ⭐
 
 **⭐ CRITICAL MODULE - 2.5 hours budgeted**
 
-### Prerequisites ❌
+### Core Implementation ✅
 
-- ❌ Module 3 must be complete
-- [ ] Anti-injection strategy understanding
+- ✅ LeadQualifier service with dual extraction architecture
+- ✅ LLM extraction via FakeClient with graceful failure handling
+- ✅ Heuristic extraction with defensive regex patterns
+- ✅ Cross-validation and discrepancy detection (numeric + string fields)
+- ✅ Defensive merging strategy (prefer heuristic on conflicts)
+- ✅ Budget extraction with last-match strategy
+- ✅ Phone vs budget distinction using keyword proximity
+- ✅ Severity classification (high >30%, medium)
+- ✅ Duration tracking with minimum 1ms enforcement
+- ✅ Structured JSON logging
+- ✅ 10 comprehensive tests (all scenarios + LLM failure)
 
-### Planned Implementation
+**Commits**: 52fd453 (implementation), ff84103 (documentation), c93bb2e (review)
 
-- [ ] LeadQualifier service
-- [ ] Dual extraction (LLM + heuristic)
-- [ ] Cross-validation logic
-- [ ] Discrepancy detection
-- [ ] Edge cases: phone vs budget, budget mismatch
-- [ ] Comprehensive tests (100% coverage)
+### 🔴 CRÍTICO Pendientes
 
-**Status**: Not started
+- [ ] **Add VCR Integration Tests to LeadQualifier**
+  - Priority: 🔴 CRÍTICO
+  - Blocks: Production confidence, real API validation
+  - Impact: Current tests use ONLY FakeClient, not validating real API integration
+  - Tasks:
+    - [ ] Test with `phone_vs_budget.yml` cassette (edge case with real API)
+    - [ ] Test with `extract_simple_profile.yml` cassette (happy path with real API)
+    - [ ] Test with `markdown_wrapped_json.yml` cassette (robust parsing)
+    - [ ] Verify discrepancy detection with real API response format
+  - Location: spec/services/lead_qualifier_spec.rb (add new context)
+  - Effort: 1-2 hours
+  - Reference: VCR cassettes in spec/fixtures/vcr_cassettes/anthropic/
+  - **Discovery**: Module 4 blind spot analysis (2025-12-26)
+
+### 🟡 IMPORTANTE Pendientes
+
+- [ ] **Test Discrepancy Detection with Real API Response**
+  - Priority: 🟡 IMPORTANTE
+  - Task: Create VCR cassette with manipulative conversation, test discrepancy detection
+  - Effort: 30 minutes
+  - Impact: Validates anti-injection logic against real LLM behavior
+
+- [ ] **Add Real API Timeout Test with VCR**
+  - Priority: 🟢 OPCIONAL
+  - Task: Replace mock-based timeout test with VCR-simulated timeout
+  - Effort: 15 minutes
+  - Impact: More realistic integration test
+
+### Pattern Established
+
+**FakeClient vs VCR Strategy**:
+- ✅ FakeClient tests: Business logic, edge cases, fast execution (10 examples)
+- ⏸️ VCR tests: Real API integration, response format validation, robustness
+
+**Status**: Core complete ✅, VCR integration pending
 **Reference**: docs/ai-guidance/04-anti-injection.md
-**Estimated Time**: 2.5 hours
+**Implementation Time**: ~1 hour
+**Total Test Coverage**: 124 examples, 0 failures
 
 ---
 
@@ -256,37 +295,43 @@ Quick reference for tracking progress across all modules.
 
 ## Overall Progress
 
-**Modules Completed**: 1 / 8 (12.5%)
-**Estimated Remaining Time**: 8.5 hours
-**Current Blockers**: Module 1 validation pending
+**Modules Completed**: 4 / 8 (50%) - Modules 0-4 core complete
+**Modules with Pendientes**: Module 4 (VCR tests - 1-2 hours, not blocking)
+**Estimated Remaining Time**: 4 hours (Modules 5-7)
+**Current Blockers**: None (VCR tests can be done in parallel)
 
 ### Critical Path
 
 1. ✅ Module 0: AI Governance
-2. 🔄 Module 1: Foundation (validation pending)
-3. ⏸️ Module 2: Domain Models
-4. ⏸️ Module 3: LLM Adapter
-5. ⏸️ **Module 4: Anti-Injection Core** ⭐ (CRITICAL)
+2. ✅ Module 1: Foundation
+3. ✅ Module 2: Domain Models
+4. ✅ Module 3: LLM Adapter
+5. ✅ **Module 4: Anti-Injection Core** ⭐ (VCR tests pending)
 6. ⏸️ Module 5: Property Matching
 7. ⏸️ Module 6: API Endpoint
 8. ⏸️ Module 7: Minimal Interface
 
 ### Next Actions (in order)
 
-1. Create `spec/config/logging_spec.rb` (15 min)
-2. Run Docker verification checklist (30 min)
-3. Complete Next Module Preparation (40 min)
-4. Review Module 2 guidance (20 min)
-5. Start Module 2 implementation (1 hour)
+**Option A - Continue to Module 5** (Recommended):
+1. Review Module 5 guidance (15 min)
+2. Start Module 5 implementation (1 hour)
+3. Implement VCR tests in parallel or later
+
+**Option B - Complete Module 4 VCR Tests First**:
+1. Implement 3-4 VCR integration tests (1-2 hours)
+2. Verify all 127+ tests pass
+3. Commit VCR implementation
+4. Proceed to Module 5
 
 ---
 
 ## Notes
 
-- **Docker Validation**: Essential before proceeding to Module 2
-- **Module 4 Alert**: Critical module requiring 2.5 hours - do not rush
+- **Module 4 VCR Gap**: Critical blind spot discovered - VCR integration tests not implemented
+- **Testing Strategy**: FakeClient (business logic) + VCR (real API) both necessary
 - **Testing Coverage**: Maintain >80% overall, 100% for critical services
-- **Commit Strategy**: Accepted consolidated commits for clarity
+- **Current Status**: 50% complete (4/8 modules), core path unblocked
 
-**Last Review**: 2025-12-21
-**Next Review**: After completing Module 1 pendientes
+**Last Review**: 2025-12-26
+**Next Review**: After Module 5 completion or VCR implementation

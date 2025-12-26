@@ -420,7 +420,92 @@ end
 
 ---
 
+## VCR Integration Tests (CRÍTICO - Blind Spot Discovered)
+
+### Problem
+
+The tests above use ONLY `FakeClient` with hardcoded responses. This validates business logic but does NOT test:
+- Real API integration with `AnthropicClient`
+- Response format from actual Anthropic API
+- Robustness against API format changes
+
+### Solution: Add VCR Tests
+
+```ruby
+# spec/services/lead_qualifier_spec.rb (add after existing tests)
+
+context "with real Anthropic API responses (VCR integration)", :vcr do
+  before do
+    Current.scenario = nil  # Force fallback to AnthropicClient
+  end
+
+  it "qualifies lead using phone_vs_budget cassette" do
+    # Messages must match cassette request exactly
+    session.messages.create!(role: "user", content: "Busco depa en CDMX", sequence_number: 0)
+    session.messages.create!(role: "assistant", content: "¿Presupuesto y teléfono?", sequence_number: 1)
+    session.messages.create!(role: "user", content: "Presupuesto 2 millones, mi cel es 5512345678", sequence_number: 2)
+
+    VCR.use_cassette("anthropic/phone_vs_budget") do
+      result = described_class.call(session)
+
+      # Verify with REAL API response
+      expect(result.lead_profile["budget"]).to eq(2_000_000)
+      expect(result.lead_profile["phone"]).to eq("5512345678")
+      expect(result.lead_profile["city"]).to eq("CDMX")
+      expect(result.lead_profile["property_type"]).to eq("departamento")
+      expect(result.status).to eq("qualified")
+    end
+  end
+
+  it "qualifies lead using extract_simple_profile cassette (happy path)" do
+    session.messages.create!(role: "user", content: "Busco un departamento en CDMX", sequence_number: 0)
+    session.messages.create!(role: "assistant", content: "¿Cuál es tu presupuesto?", sequence_number: 1)
+    session.messages.create!(role: "user", content: "Tengo hasta 3 millones de pesos", sequence_number: 2)
+
+    VCR.use_cassette("anthropic/extract_simple_profile") do
+      result = described_class.call(session)
+
+      expect(result.lead_profile["budget"]).to eq(3_000_000)
+      expect(result.lead_profile["city"]).to eq("CDMX")
+      expect(result.lead_profile["property_type"]).to eq("departamento")
+      expect(result.discrepancies).to be_empty
+    end
+  end
+
+  it "handles markdown-wrapped JSON from API" do
+    # Uses cassette with JSON wrapped in ```json...```
+    session.messages.create!(role: "user", content: "Busco depa", sequence_number: 0)
+
+    VCR.use_cassette("anthropic/markdown_wrapped_json") do
+      result = described_class.call(session)
+
+      # Should parse successfully despite markdown wrapper
+      expect(result.lead_profile).not_to be_empty
+      expect(result.status).to eq("qualified")
+    end
+  end
+end
+```
+
+### Why This Matters
+
+**FakeClient tests**: Fast, reliable, test business logic (10 examples)
+**VCR tests**: Slow, validate real integration, catch format changes (3-4 examples)
+
+Both are necessary for production confidence.
+
+### Available VCR Cassettes
+
+- `phone_vs_budget.yml` - Edge case: phone vs budget distinction
+- `extract_simple_profile.yml` - Happy path: basic profile extraction
+- `extract_complex_profile.yml` - Multiple fields extraction
+- `markdown_wrapped_json.yml` - Robust parsing test
+
+---
+
 ## Success Criteria
+
+### Core Implementation ✅
 
 - [x] All 3 scenarios pass tests
 - [x] Phone vs budget edge case handled correctly
@@ -430,6 +515,16 @@ end
 - [x] Structured logging outputs JSON
 - [x] qualification_duration_ms recorded
 
+### VCR Integration ⏸️ (CRÍTICO)
+
+- [ ] Test with `phone_vs_budget.yml` cassette
+- [ ] Test with `extract_simple_profile.yml` cassette
+- [ ] Test with `markdown_wrapped_json.yml` cassette
+- [ ] Verify real API response format compatibility
+
+**Status**: Core complete, VCR integration pending
+**Discovery**: Blind spot found during Module 4 review (2025-12-26)
+
 ---
 
-**Last Updated**: 2025-12-20
+**Last Updated**: 2025-12-26
