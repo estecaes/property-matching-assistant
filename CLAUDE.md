@@ -249,6 +249,16 @@ References: docs/ai-guidance/XX-module.md
 - [ ] Logs are structured JSON
 - [ ] Commit messages reference module
 - [ ] Update learning log if challenges encountered
+- [ ] **Blind Spots Analysis** - Systematic post-implementation review
+  - [ ] Create `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE{N}.md`
+  - [ ] Create `docs/learning-log/blind-spots/MODULE{N}-CHECKLIST.md`
+  - [ ] Test edge cases not covered by specs
+  - [ ] Verify JSONB defaults and array operations
+  - [ ] Check for missing validations
+  - [ ] Review database indexes
+  - [ ] Fix CRITICAL items before next module
+  - [ ] Commit analysis documents
+  - [ ] Update `docs/learning-log/module-reviews.md` with summary
 
 ## Scenario-Based Testing
 

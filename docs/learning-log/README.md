@@ -23,6 +23,15 @@ Architectural changes made after initial implementation.
 ### [decisions.md](./decisions.md)
 Key decisions made during development with context and trade-offs.
 
+### [module-reviews.md](./module-reviews.md)
+Post-implementation reviews and summaries for each completed module.
+
+### [blind-spots/](./blind-spots/)
+Systematic analysis of potential issues discovered after module completion.
+- BLIND-SPOTS-MODULE{N}.md - Comprehensive analysis
+- MODULE{N}-CHECKLIST.md - Actionable fixes
+- See blind-spots/README.md for detailed usage guide
+
 ## When to Document
 
 ### Always Document
