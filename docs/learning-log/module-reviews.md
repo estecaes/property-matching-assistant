@@ -148,8 +148,8 @@ _Pending implementation_
 ## Module 4: Anti-Injection Core - Post-Implementation Review
 
 **Completion Date**: 2025-12-26
-**Implementation Time**: ~1 hour (continued from context limit)
-**Commits**: 52fd453, ff84103
+**Implementation Time**: ~1.5 hours total (1 hour core + 30 min VCR tests)
+**Commits**: 52fd453 (implementation), ff84103 (documentation), 05cb861 (VCR blind spot doc), bbad8b3 (VCR tests)
 
 ### Summary
 
@@ -173,7 +173,7 @@ Successfully implemented LeadQualifier service with dual extraction (LLM + heuri
 
 #### CRÍTICO
 
-1. **VCR Integration Tests NOT Implemented**
+1. **VCR Integration Tests NOT Implemented** (DISCOVERED → FIXED)
    - **Where**: spec/services/lead_qualifier_spec.rb (all tests use FakeClient only)
    - **What**: NO tests validate LeadQualifier + AnthropicClient integration with real API responses
    - **Discovery**: Post-implementation blind spot analysis (2025-12-26)
@@ -184,9 +184,10 @@ Successfully implemented LeadQualifier service with dual extraction (LLM + heuri
    - **Impact**: HIGH - No validation that real API format matches expectations
    - **Risk**: Breaking changes in Anthropic API format won't be detected
    - **Pattern Gap**: FakeClient tests business logic ✅, VCR tests real integration ❌
-   - **Status**: ⏸️ PENDING (documented in CHECKLIST.md + guidance)
-   - **Effort**: 1-2 hours to implement 3-4 VCR integration tests
-   - **Recommendation**: Add before Module 5 or as parallel task
+   - **Status**: ✅ FIXED (bbad8b3)
+   - **Effort**: 30 minutes actual (estimated 1-2 hours)
+   - **Implementation**: Added 3 VCR integration tests (lines 134-185)
+   - **Test Results**: 127 examples, 0 failures (124 + 3 new VCR tests)
 
 2. **Duration Validation Edge Case Initially Missed**
    - **Where**: Duration calculation (lead_qualifier.rb:45)
@@ -257,11 +258,11 @@ All criteria met (verified before commit):
 - [x] Structured logging outputs JSON (visible in test output)
 - [x] qualification_duration_ms recorded (minimum 1ms enforced)
 
-Full test suite: 124 examples, 0 failures (114 existing + 10 new)
+Full test suite: 127 examples, 0 failures (114 existing + 10 FakeClient + 3 VCR)
 
 ### 🎯 Lessons Learned
 
-1. **VCR Integration Gap - Critical Discovery**: Post-implementation analysis revealed ALL tests use FakeClient only. While this validates business logic excellently, it creates a **critical blind spot**: no validation of real API integration. The project has 6 VCR cassettes perfect for integration tests but they're unused in LeadQualifier. **Pattern established**: FakeClient = fast business logic tests, VCR = slow integration validation. Both are necessary.
+1. **VCR Integration Gap - Critical Discovery & Rapid Fix**: Post-implementation analysis revealed ALL tests use FakeClient only. While this validates business logic excellently, it creates a **critical blind spot**: no validation of real API integration. The project has 6 VCR cassettes perfect for integration tests but they're unused in LeadQualifier. **Pattern established**: FakeClient = fast business logic tests, VCR = slow integration validation. Both are necessary. **Resolution**: Implemented 3 VCR tests in 30 minutes (bbad8b3), validating phone_vs_budget edge case, happy path, and markdown parsing with real API responses.
 
 2. **Edge Case Discovery Through TDD**: Writing tests first revealed the duration validation edge case that wouldn't have been caught until production. The 0ms scenario is rare but real in fast test environments.
 
@@ -298,9 +299,10 @@ Full test suite: 124 examples, 0 failures (114 existing + 10 new)
 
 ### 🚀 Ready for Module 5
 
-Module 4 **core implementation** complete with all success criteria verified. VCR integration tests documented as CRÍTICO pendiente but NOT blocking Module 5 (can be implemented in parallel). Ready to proceed with Module 5 (Property Matching) which will build on the lead_profile data extracted here.
+Module 4 **FULLY COMPLETE** with all success criteria verified, including VCR integration tests. Blind spot discovered, documented, and fixed in same session (30 min implementation). Ready to proceed with Module 5 (Property Matching) which will build on the lead_profile data extracted here.
 
-**Recommendation**: Implement VCR tests (1-2 hours) before final demo or during Module 5+ development as parallel task.
+**Status**: All CRÍTICO items resolved ✅
+**Test Coverage**: 127 examples, 0 failures (complete validation: business logic + real API integration)
 
 ---
 
