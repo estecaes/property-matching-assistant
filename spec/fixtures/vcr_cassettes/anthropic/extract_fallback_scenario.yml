@@ -1,0 +1,27 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-3-5-sonnet-20241022","max_tokens":1024,"messages":[{"role":"user","content":"Something unusual"}]}'
+    headers:
+      Content-Type:
+      - application/json
+      X-Api-Key:
+      - <X-API-KEY-HEADER>
+      Anthropic-Version:
+      - '2023-06-01'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"content":[{"type":"text","text":"{\n  \"confidence\": \"low\"\n}"}]}'
+  recorded_at: Thu, 26 Dec 2024 12:00:00 GMT
+recorded_with: VCR 6.2.0

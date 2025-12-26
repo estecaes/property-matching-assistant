@@ -1,0 +1,27 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.anthropic.com/v1/messages
+    body:
+      encoding: UTF-8
+      string: '{"model":"claude-3-5-sonnet-20241022","max_tokens":1024,"system":"You are a lead qualification assistant for a real estate platform.\nExtract the following information from the conversation:\n- budget (numeric, in MXN)\n- city (string)\n- area (string, neighborhood name)\n- bedrooms (integer)\n- bathrooms (integer)\n- property_type (casa, departamento, terreno)\n- phone (string, if provided)\n\nReturn ONLY a JSON object with these fields. Omit fields if not mentioned.\nBe precise with numbers and do not confuse phone numbers with budgets.\n\nExample output:\n{\n  \"budget\": 3000000,\n  \"city\": \"CDMX\",\n  \"area\": \"Roma Norte\",\n  \"bedrooms\": 2,\n  \"confidence\": \"high\"\n}\n","messages":[{"role":"user","content":"Busco depa en CDMX"},{"role":"assistant","content":"¿Presupuesto y teléfono?"},{"role":"user","content":"Presupuesto 2 millones, mi cel es 5512345678"}]}'
+    headers:
+      Content-Type:
+      - application/json
+      X-Api-Key:
+      - <X-API-KEY-HEADER>
+      Anthropic-Version:
+      - '2023-06-01'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"id":"msg_03DEF789","type":"message","role":"assistant","content":[{"type":"text","text":"{\n  \"budget\": 2000000,\n  \"city\": \"CDMX\",\n  \"phone\": \"5512345678\",\n  \"property_type\": \"departamento\",\n  \"confidence\": \"high\"\n}"}],"model":"claude-3-5-sonnet-20241022","stop_reason":"end_turn","usage":{"input_tokens":160,"output_tokens":60}}'
+  recorded_at: Thu, 26 Dec 2024 12:00:00 GMT
+recorded_with: VCR 6.2.0

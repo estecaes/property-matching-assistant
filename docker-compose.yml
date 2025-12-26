@@ -22,10 +22,11 @@ services:
     depends_on:
       - db
     environment:
-      DB_HOST: db
-      DB_USERNAME: postgres
-      DB_PASSWORD: postgres
-      RAILS_ENV: development
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-dummy-key-for-vcr}
+      DB_HOST: ${DB_HOST:-db}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      RAILS_ENV: ${RAILS_ENV:-development}
 
 volumes:
   postgres_data:
