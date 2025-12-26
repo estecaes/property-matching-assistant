@@ -5,6 +5,9 @@ require "rails_helper"
 RSpec.describe LLM::FakeClient do
   subject(:client) { described_class.new }
 
+  # Ensure Current.scenario is reset after each test to prevent state leakage
+  after { Current.reset }
+
   let(:messages) do
     [
       { role: "user", content: "Busco un departamento" },

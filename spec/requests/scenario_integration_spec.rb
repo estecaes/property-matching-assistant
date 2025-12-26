@@ -3,6 +3,9 @@
 require "rails_helper"
 
 RSpec.describe "Scenario Integration", type: :request do
+  # Ensure Current.scenario is reset after each test to prevent state leakage
+  after { Current.reset }
+
   describe "X-Scenario header management" do
     it "sets Current.scenario from request header" do
       get "/health", headers: { "X-Scenario" => "budget_seeker", "Host" => "localhost" }
@@ -34,8 +37,6 @@ RSpec.describe "Scenario Integration", type: :request do
       # Each request maintains its own scenario
       expect(Current.scenario).to eq("request_1_scenario")
       expect(thread_scenario).to eq("request_2_scenario")
-
-      Current.reset
     end
   end
 
@@ -76,8 +77,6 @@ RSpec.describe "Scenario Integration", type: :request do
       expect(profile[:budget]).to eq(3_000_000)
       expect(profile[:city]).to eq("CDMX")
       expect(profile[:confidence]).to eq("high")
-
-      Current.reset
     end
 
     it "falls back to AnthropicClient when scenario is not recognized" do
@@ -90,8 +89,6 @@ RSpec.describe "Scenario Integration", type: :request do
       profile = client.extract_profile(messages)
 
       expect(profile[:budget]).to eq(2_000_000)
-
-      Current.reset
     end
 
     it "falls back when Current.scenario is nil" do
@@ -104,8 +101,6 @@ RSpec.describe "Scenario Integration", type: :request do
       client.extract_profile(messages)
 
       expect(LLM::AnthropicClient).to have_received(:new)
-
-      Current.reset
     end
   end
 

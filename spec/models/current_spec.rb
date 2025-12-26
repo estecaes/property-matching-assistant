@@ -3,6 +3,9 @@
 require "rails_helper"
 
 RSpec.describe Current, type: :model do
+  # Ensure Current is reset after each test to prevent state leakage
+  after { Current.reset }
+
   describe ".scenario" do
     it "stores and retrieves scenario value" do
       Current.scenario = "budget_seeker"
