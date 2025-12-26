@@ -129,50 +129,64 @@ end
 
 ---
 
-### 6. VCR Setup (Production Only)
-- [x] **Skip** for demo scope per ADR-001
-- [x] Document as production requirement
-- [x] Add note to module3-fixes.md
+### 6. VCR Setup ✅ COMPLETED (FULLY IMPLEMENTED)
+- [x] **Add** VCR gem to Gemfile
+- [x] **Create** spec/support/vcr.rb with security filters
+- [x] **Add** VCR integration tests for AnthropicClient
+- [x] **Create** mock cassettes for test scenarios
+- [x] **Update** docker-compose.yml for CI/CD compatibility
+- [x] **Verify** no API keys in cassettes
 
-**Note**: Not needed for 6-8 hour demo. Would add 1-2 hours setup time.
+**Completed in**: Commit 275721b
+**Result**: 4 new VCR tests, 114 total examples passing
 
-**Production Recommendation**: For production deployment, add VCR gem to record and replay HTTP interactions with Anthropic API. This provides:
-- Deterministic API testing without live requests
-- Protection against API changes breaking tests
-- Faster test suite execution
-- No API costs during CI/CD runs
+**Decision Change**: Initially planned to skip VCR for demo scope, but user had API key available and requested full implementation. This provides production-quality testing without API costs in CI/CD.
 
-**Implementation** (when needed):
+**Implementation**:
 ```ruby
-# Gemfile
-gem 'vcr', group: :test
-gem 'webmock', group: :test  # Already added
-
 # spec/support/vcr.rb
 VCR.configure do |config|
   config.cassette_library_dir = "spec/fixtures/vcr_cassettes"
   config.hook_into :webmock
-  config.filter_sensitive_data('<ANTHROPIC_API_KEY>') { ENV['ANTHROPIC_API_KEY'] }
-end
 
-# Usage in specs
-it "extracts profile from real API" do
-  VCR.use_cassette("anthropic/extract_profile") do
-    # Real API call gets recorded on first run
-    # Replayed from cassette on subsequent runs
+  # SECURITY: Filter sensitive data
+  config.filter_sensitive_data("<ANTHROPIC_API_KEY>") { ENV["ANTHROPIC_API_KEY"] }
+  config.filter_sensitive_data("<X-API-KEY-HEADER>") do |interaction|
+    interaction.request.headers["X-Api-Key"]&.first
   end
 end
+```
+
+**Cassettes Created**:
+- `extract_simple_profile.yml` - Simple budget extraction
+- `extract_complex_profile.yml` - Multi-field extraction
+- `phone_vs_budget.yml` - Phone number vs budget distinction
+- `markdown_wrapped_json.yml` - JSON in markdown code blocks
+
+**CI/CD Support**:
+```yaml
+# docker-compose.yml
+environment:
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-dummy-key-for-vcr}
+  # All variables now have fallback values
+  # No .env file required for CI/CD
+```
+
+**Security Verification**:
+```bash
+grep -r "sk-ant" spec/fixtures/vcr_cassettes/
+# ✓ No API keys found - all filtered
 ```
 
 ---
 
 ## Summary
 
-| Priority   | Tasks | Status     | Commits                           |
-|------------|-------|------------|-----------------------------------|
-| IMPORTANT  | 3     | ✅ DONE    | 1c5071e, 5eaa2a9, 43390cb        |
-| OPTIONAL   | 3     | ✅ DONE    | 42aa071 (4+5), d80d5f8 (6)       |
-| **TOTAL**  | **6** | **100%**   | **5 commits**                     |
+| Priority   | Tasks | Status     | Commits                                    |
+|------------|-------|------------|--------------------------------------------|
+| IMPORTANT  | 3     | ✅ DONE    | 1c5071e, 5eaa2a9, 43390cb                 |
+| OPTIONAL   | 3     | ✅ DONE    | 42aa071 (4+5), 275721b (6 - IMPLEMENTED)  |
+| **TOTAL**  | **6** | **100%**   | **6 commits**                              |
 
 ---
 
@@ -188,13 +202,15 @@ end
 ### OPTIONAL Fixes:
 4. ✅ Host authorization documentation - Commit 42aa071
 5. ✅ LLM inflector documentation - Commit 42aa071
-6. ✅ VCR production notes - Commit d80d5f8
+6. ✅ **VCR full implementation** - Commit 275721b (not just documented!)
 
 ### Final Test Results:
-- **110 examples, 0 failures**
+- **114 examples, 0 failures** (110 previous + 4 VCR tests)
 - All Module 2 + Module 3 tests passing
 - No state leakage between tests
 - Comprehensive error scenario coverage
+- VCR cassettes secure (API keys filtered)
+- CI/CD compatible (no .env required)
 
 ---
 
