@@ -21,7 +21,8 @@ module LLM
           budget: 3_000_000,
           city: "CDMX",
           area: "Roma Norte",
-          bedrooms: 2
+          bedrooms: 2,
+          property_type: "departamento"
         }
       },
       "budget_mismatch" => {
@@ -34,11 +35,13 @@ module LLM
         llm_response: {
           budget: 5_000_000,  # LLM picks first number
           city: "Guadalajara",
+          property_type: "departamento",
           confidence: "medium"
         },
         heuristic_response: {
           budget: 3_000_000,  # Heuristic picks last number
-          city: "Guadalajara"
+          city: "Guadalajara",
+          property_type: "departamento"
         }
       },
       "phone_vs_budget" => {

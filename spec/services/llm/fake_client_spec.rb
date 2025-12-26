@@ -42,6 +42,7 @@ RSpec.describe LLM::FakeClient do
         expect(profile).to eq({
           budget: 5_000_000,
           city: "Guadalajara",
+          property_type: "departamento",
           confidence: "medium"
         })
       end
@@ -158,7 +159,8 @@ RSpec.describe LLM::FakeClient do
         budget: 3_000_000,
         city: "CDMX",
         area: "Roma Norte",
-        bedrooms: 2
+        bedrooms: 2,
+        property_type: "departamento"
       })
     end
 
