@@ -2,6 +2,24 @@ require "net/http"
 require "json"
 
 module LLM
+  # Client for Anthropic Claude API integration
+  #
+  # Handles lead qualification by extracting structured profile data from conversation messages
+  # using Claude 3.5 Sonnet model.
+  #
+  # Error Handling:
+  # - Missing API key: Raises on initialization with clear error message
+  # - API errors (500, 503): Logs error message and re-raises StandardError
+  # - Rate limiting (429): Logs error and re-raises with API response
+  # - Timeout (>30s): Raises Net::OpenTimeout or Net::ReadTimeout
+  # - Malformed JSON: Returns empty hash {}
+  # - Missing content: Returns empty hash {}
+  #
+  # Example usage:
+  #   client = LLM::AnthropicClient.new
+  #   profile = client.extract_profile(messages)
+  #   # => { budget: 3_000_000, city: "CDMX", confidence: "high" }
+  #
   class AnthropicClient
     CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
     CLAUDE_MODEL = "claude-3-5-sonnet-20241022"
@@ -11,6 +29,12 @@ module LLM
       raise "ANTHROPIC_API_KEY environment variable not set" unless @api_key
     end
 
+    # Extracts structured profile data from conversation messages
+    #
+    # @param messages [Array<Hash>] Array of message hashes with :role and :content
+    # @return [Hash] Extracted profile with symbolized keys (budget, city, area, etc.)
+    # @raise [StandardError] If API request fails
+    # @raise [Net::OpenTimeout, Net::ReadTimeout] If request times out
     def extract_profile(messages)
       response = call_api(build_request(messages))
       parse_response(response)
