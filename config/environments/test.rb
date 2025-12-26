@@ -17,8 +17,10 @@ Rails.application.configure do
   # loading is working properly before deploying your code.
   config.eager_load = ENV["CI"].present?
 
-  # Disable host authorization middleware in test environment
-  config.middleware.delete ActionDispatch::HostAuthorization
+  # Allow test hosts (disable HostAuthorization for specs)
+  config.hosts << "www.example.com"
+  config.hosts << ".example.com"
+  config.hosts << "localhost"
 
   # Configure public file server for tests with Cache-Control for performance.
   config.public_file_server.headers = { "Cache-Control" => "public, max-age=#{1.hour.to_i}" }
