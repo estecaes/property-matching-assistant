@@ -150,6 +150,18 @@ RSpec.configure do |config|
 end
 ```
 
+**Rails 7.2 Test Environment Configuration**:
+
+```ruby
+# config/environments/test.rb
+# Allow test hosts (disable HostAuthorization for request specs)
+config.hosts << "www.example.com"
+config.hosts << ".example.com"
+config.hosts << "localhost"
+```
+
+Rails 7.2 introduced stricter host authorization by default. Request specs fail with 403 Forbidden unless test hosts are explicitly allowed.
+
 ### Structured Logging
 
 ```ruby

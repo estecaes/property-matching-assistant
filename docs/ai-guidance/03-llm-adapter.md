@@ -20,6 +20,30 @@
 
 See ADR-003 for architectural context and design decisions.
 
+### Step 0: Prerequisites - Zeitwerk Configuration
+
+Rails 7+ uses Zeitwerk for autoloading. Configure the LLM acronym and services directory:
+
+```ruby
+# config/application.rb
+module PropertyMatchingAssistant
+  class Application < Rails::Application
+    # ... other config ...
+
+    # Autoload and eager load app/services for custom service objects
+    config.autoload_paths << Rails.root.join("app/services")
+    config.eager_load_paths << Rails.root.join("app/services")
+
+    # Configure inflector for LLM acronym (Zeitwerk requirement)
+    ActiveSupport::Inflector.inflections(:en) do |inflect|
+      inflect.acronym "LLM"
+    end
+  end
+end
+```
+
+**Why this is needed**: Zeitwerk uses `String#camelize` to map file paths to constants. Without the inflector configuration, `app/services/llm/` would map to `Llm` instead of `LLM`, causing "uninitialized constant LLM" errors.
+
 ### Step 1: CurrentAttributes Setup
 
 ```ruby
