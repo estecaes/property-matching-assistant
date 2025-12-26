@@ -251,7 +251,7 @@ References: docs/ai-guidance/XX-module.md
 - [ ] Update learning log if challenges encountered
 - [ ] **Blind Spots Analysis** - Systematic post-implementation review
   - [ ] Create `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE{N}.md`
-  - [ ] Create `docs/learning-log/blind-spots/MODULE{N}-CHECKLIST.md`
+  - [ ] Create `docs/learning-log/blind-spots/module{N}-fixes.md`
   - [ ] Test edge cases not covered by specs
   - [ ] Verify JSONB defaults and array operations
   - [ ] Check for missing validations

@@ -32,10 +32,10 @@ This is **proactive quality assurance** - finding issues before they become prob
 - Verification commands
 - Status tracking (verified/pending/accepted)
 
-### Checklist Document
-**Format**: `MODULE{N}-CHECKLIST.md`
+### Fixes Checklist Document
+**Format**: `module{N}-fixes.md`
 
-**Example**: `MODULE2-CHECKLIST.md`
+**Example**: `module2-fixes.md`
 
 **Contents**:
 - Actionable checklist organized by priority
@@ -57,7 +57,7 @@ This is **proactive quality assurance** - finding issues before they become prob
 2. Manually test edge cases not covered by specs
 3. Review code for potential issues
 4. Create BLIND-SPOTS-MODULE{N}.md with analysis
-5. Create MODULE{N}-CHECKLIST.md with actionable items
+5. Create module{N}-fixes.md with actionable items
 6. Commit both documents together
 7. Fix CRITICAL items before next module
 8. Defer IMPORTANT/OPTIONAL based on time constraints
@@ -219,7 +219,7 @@ docker compose run --rm app rails runner "
 - Research potential edge cases from similar projects
 - Review module guidance for constraints
 - Write BLIND-SPOTS-MODULE{N}.md
-- Write MODULE{N}-CHECKLIST.md
+- Write module{N}-fixes.md
 
 ### Step 4: Commit and Fix
 ```bash

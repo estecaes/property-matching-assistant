@@ -28,9 +28,9 @@ Post-implementation reviews and summaries for each completed module.
 
 ### [blind-spots/](./blind-spots/)
 Systematic analysis of potential issues discovered after module completion.
-- BLIND-SPOTS-MODULE{N}.md - Comprehensive analysis
-- MODULE{N}-CHECKLIST.md - Actionable fixes
-- See blind-spots/README.md for detailed usage guide
+- `BLIND-SPOTS-MODULE{N}.md` - Comprehensive analysis with severity levels
+- `module{N}-fixes.md` - Actionable fixes prioritized by urgency
+- See [blind-spots/README.md](./blind-spots/README.md) for detailed usage guide
 
 ## When to Document
 
