@@ -131,6 +131,59 @@ RSpec.describe LeadQualifier do
     end
   end
 
+  # VCR Integration Tests - Validate real API integration
+  context "with real Anthropic API responses (VCR integration)", :vcr do
+    before do
+      Current.scenario = nil  # Force fallback to AnthropicClient
+    end
+
+    it "qualifies lead using phone_vs_budget cassette" do
+      # Messages must match cassette request exactly
+      session.messages.create!(role: "user", content: "Busco depa en CDMX", sequence_number: 0)
+      session.messages.create!(role: "assistant", content: "¿Presupuesto y teléfono?", sequence_number: 1)
+      session.messages.create!(role: "user", content: "Presupuesto 2 millones, mi cel es 5512345678", sequence_number: 2)
+
+      VCR.use_cassette("anthropic/phone_vs_budget") do
+        result = described_class.call(session)
+
+        # Verify with REAL API response
+        expect(result.lead_profile["budget"]).to eq(2_000_000)
+        expect(result.lead_profile["phone"]).to eq("5512345678")
+        expect(result.lead_profile["city"]).to eq("CDMX")
+        expect(result.lead_profile["property_type"]).to eq("departamento")
+        expect(result.status).to eq("qualified")
+      end
+    end
+
+    it "qualifies lead using extract_simple_profile cassette (happy path)" do
+      session.messages.create!(role: "user", content: "Busco un departamento en CDMX", sequence_number: 0)
+      session.messages.create!(role: "assistant", content: "¿Cuál es tu presupuesto?", sequence_number: 1)
+      session.messages.create!(role: "user", content: "Tengo hasta 3 millones de pesos", sequence_number: 2)
+
+      VCR.use_cassette("anthropic/extract_simple_profile") do
+        result = described_class.call(session)
+
+        expect(result.lead_profile["budget"]).to eq(3_000_000)
+        expect(result.lead_profile["city"]).to eq("CDMX")
+        expect(result.lead_profile["property_type"]).to eq("departamento")
+        expect(result.discrepancies).to be_empty
+      end
+    end
+
+    it "handles markdown-wrapped JSON from API" do
+      # Uses cassette with JSON wrapped in ```json...```
+      session.messages.create!(role: "user", content: "Busco depa", sequence_number: 0)
+
+      VCR.use_cassette("anthropic/markdown_wrapped_json") do
+        result = described_class.call(session)
+
+        # Should parse successfully despite markdown wrapper
+        expect(result.lead_profile).not_to be_empty
+        expect(result.status).to eq("qualified")
+      end
+    end
+  end
+
   # Helper method to create messages from scenario
   def create_messages(session, messages)
     messages.each_with_index do |msg, index|
