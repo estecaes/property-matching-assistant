@@ -1,8 +1,30 @@
 # Módulo 6: API Endpoint - AI Guidance
 
 **Estimated Time**: 1.5 hours
-**Status**: Pending
+**Status**: Complete
 **Dependencies**: Module 4 (LeadQualifier), Module 5 (PropertyMatcher)
+
+---
+
+## Pre-Implementation Checklist
+
+**BEFORE starting implementation, review these patterns from previous modules:**
+
+1. **HostAuthorization Pattern** (Module 3 blind spot):
+   - ✅ Review `spec/requests/health_spec.rb` for established pattern
+   - ✅ Use `host! 'localhost'` in ALL request specs
+   - ❌ Do NOT modify `config/environments/test.rb` for this
+
+2. **Error Handling Pattern** (Module 4):
+   - ✅ Structured JSON logging for errors
+   - ✅ Graceful LLM failure handling
+   - ✅ Include backtrace in logs (first 5 lines)
+
+3. **String Keys Handling** (Module 5 blind spot):
+   - ✅ PropertyMatcher already handles via `.symbolize_keys`
+   - ✅ Verify in integration tests
+
+**Key Lesson**: Always review existing spec files for patterns before writing new ones.
 
 ---
 
@@ -210,11 +232,17 @@ end
 
 ### Request Specs
 
+**CRITICAL**: Use `host! 'localhost'` to prevent HostAuthorization errors (Module 3 lesson learned)
+
 ```ruby
 # spec/requests/runs_spec.rb
 require 'rails_helper'
 
 RSpec.describe 'POST /run', type: :request do
+  before do
+    host! 'localhost'  # ⚠️ REQUIRED - prevents 403 Forbidden from HostAuthorization
+  end
+
   context 'with budget_seeker scenario' do
     it 'returns successful qualification with matches' do
       post '/run', headers: { 'X-Scenario' => 'budget_seeker' }
@@ -315,12 +343,15 @@ end
 
 ## Success Criteria
 
-- [ ] POST /run works for all 3 scenarios
-- [ ] Response includes all required fields
-- [ ] Error handling returns 500 with message
-- [ ] Logs are structured JSON
-- [ ] Tests cover happy path and error cases
+- [x] POST /run works for all 4 scenarios (budget_seeker, budget_mismatch, phone_vs_budget, missing_city)
+- [x] Response includes all required fields
+- [x] Error handling returns 500 with structured JSON logging
+- [x] Logs are structured JSON
+- [x] Tests cover happy path and error cases (12 examples)
+- [x] Request specs use `host! 'localhost'` pattern
+- [x] Full test suite passes (167 examples, 0 failures)
 
 ---
 
-**Last Updated**: 2025-12-20
+**Last Updated**: 2025-12-27
+**Implementation Notes**: See docs/learning-log/MODULE6-PLAN-ADJUSTMENT.md for blind spots analysis
