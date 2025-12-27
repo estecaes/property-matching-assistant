@@ -2,6 +2,8 @@
 
 This document captures retrospective analysis of each module implementation, including blind spots discovered, deviations from guidance, and lessons learned.
 
+**Documentation Approach:** Modules 5-7 use systematic blind spots analysis post-implementation. This proved more valuable than predictive task planning (CHECKLIST approach used in Modules 0-5) as it captures real issues discovered during development rather than predicted ones.
+
 ---
 
 ## Module 1: Foundation - Post-Implementation Review

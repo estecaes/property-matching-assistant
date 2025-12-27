@@ -325,7 +325,7 @@ This project uses a structured workflow for implementing each module:
 
 ### Before Starting a Module
 
-1. **Review CHECKLIST.md** - Check prerequisites and current module status
+1. **Review module status** - Check `docs/learning-log/module-reviews.md` for current state
 2. **Read module guidance** - `docs/ai-guidance/[XX]-module-name.md` completely
 3. **Review ALL blind spots** - `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE*.md`
    - Identify applicable patterns and lessons
@@ -356,22 +356,22 @@ This project uses a structured workflow for implementing each module:
 
 ### After Module Completion
 
-1. **Update CHECKLIST.md** - Mark completed items, update status
-2. **Create blind spots analysis** - `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE{N}.md`:
+1. **Create blind spots analysis** - `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE{N}.md`:
    - What blind spots were discovered (during or post-implementation)
    - Impact and resolution
    - Lessons learned for next module
-3. **Update plan adjustment** - Add "what actually happened" section
+2. **Create fixes document** - `docs/learning-log/blind-spots/module{N}-fixes.md` (if needed)
+3. **Update module reviews** - Add entry to `docs/learning-log/module-reviews.md`
 4. **Verify Success Criteria** - Run all validation checks from module guidance
 5. **Commit with module reference** - Use `[ModuleX]` prefix
 
 ### Critical Files for AI Development
 
-- **CHECKLIST.md** - Active tracking of all pendientes across modules (check FIRST)
-- **docs/learning-log/plan-adjustments/** - Pre-implementation planning (NEW - Modules 6+)
-- **docs/learning-log/blind-spots/** - Post-implementation analysis (Modules 2+)
+- **docs/learning-log/module-reviews.md** - Source of truth for project status
+- **docs/learning-log/blind-spots/** - Post-implementation analysis (critical learning)
 - **docs/ai-guidance/[XX]-module.md** - Module-specific implementation guidance
 - **.agent/governance.md** - Development protocols and quality standards
+- **README.md** - Overall project status and metrics
 - **.agent/context-routes.yaml** - Semantic routing for problem-solving
 
 ### Key Insight (Modules 6-7)
