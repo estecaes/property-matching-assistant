@@ -289,7 +289,13 @@ curl -X POST http://localhost:3000/run \
 - `docs/architecture/adr-003-current-attributes-pattern.md` - Thread safety approach
 
 ### Learning Log
-`docs/learning-log/challenges.md` - Real challenges encountered during implementation, solutions, and key learnings for future reference.
+- `docs/learning-log/challenges.md` - Real challenges encountered during implementation, solutions, and key learnings for future reference
+- `docs/learning-log/blind-spots/` - Post-implementation analysis for each module
+  - `BLIND-SPOTS-MODULE{N}.md` - Discovered issues, impact, resolution
+  - `README.md` - Blind spots analysis methodology
+- `docs/learning-log/plan-adjustments/` - Pre-implementation plan modifications (NEW)
+  - `MODULE{N}-PLAN-ADJUSTMENT.md` - Plan adjusted based on previous blind spots
+  - `README.md` - Plan adjustment workflow and success metrics
 
 ### Governance
 `.agent/governance.md` - Development rules, protocols, quality gates, escalation procedures.
@@ -321,33 +327,61 @@ This project uses a structured workflow for implementing each module:
 
 1. **Review CHECKLIST.md** - Check prerequisites and current module status
 2. **Read module guidance** - `docs/ai-guidance/[XX]-module-name.md` completely
-3. **Check dependencies** - Ensure previous modules are complete
-4. **Plan tasks** - Use TodoWrite tool to track implementation steps
+3. **Review ALL blind spots** - `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE*.md`
+   - Identify applicable patterns and lessons
+   - Note critical issues to avoid
+4. **Check existing code patterns** - BEFORE writing new code:
+   ```bash
+   # Example: Before creating a new controller
+   ls app/controllers/*.rb
+   cat app/controllers/similar_controller.rb  # Read one as reference
+
+   # Example: Before writing a new spec
+   ls spec/**/*_spec.rb | grep similar_pattern
+   cat spec/path/to/similar_spec.rb  # Review pattern
+   ```
+5. **Create plan adjustment** - `docs/learning-log/plan-adjustments/MODULE{N}-PLAN-ADJUSTMENT.md`
+   - Document how blind spots inform the plan
+   - List pre-implementation checklist
+   - Identify critical patterns to apply
+6. **Plan tasks** - Use TodoWrite tool to track implementation steps
 
 ### During Implementation
 
 1. **Follow TDD approach** - Write tests alongside code
-2. **Track progress** - Update TodoWrite as you complete tasks
-3. **Document challenges** - Note any issues encountered
+2. **Apply patterns from plan** - Reference plan adjustment for critical patterns
+3. **Track progress** - Update TodoWrite as you complete tasks
+4. **Document challenges** - Note any issues encountered
+5. **Make modular commits** - Each commit should have a specific purpose
 
 ### After Module Completion
 
 1. **Update CHECKLIST.md** - Mark completed items, update status
-2. **Create post-implementation review** - Add entry to `docs/learning-log/module-reviews.md`:
-   - What was implemented
-   - Blind spots discovered
-   - Deviations from guidance
-   - Lessons learned
-3. **Verify Success Criteria** - Run all validation checks from module guidance
-4. **Commit with module reference** - Use `[ModuleX]` prefix
+2. **Create blind spots analysis** - `docs/learning-log/blind-spots/BLIND-SPOTS-MODULE{N}.md`:
+   - What blind spots were discovered (during or post-implementation)
+   - Impact and resolution
+   - Lessons learned for next module
+3. **Update plan adjustment** - Add "what actually happened" section
+4. **Verify Success Criteria** - Run all validation checks from module guidance
+5. **Commit with module reference** - Use `[ModuleX]` prefix
 
 ### Critical Files for AI Development
 
 - **CHECKLIST.md** - Active tracking of all pendientes across modules (check FIRST)
-- **docs/learning-log/module-reviews.md** - Post-implementation analysis and blind spots
+- **docs/learning-log/plan-adjustments/** - Pre-implementation planning (NEW - Modules 6+)
+- **docs/learning-log/blind-spots/** - Post-implementation analysis (Modules 2+)
 - **docs/ai-guidance/[XX]-module.md** - Module-specific implementation guidance
 - **.agent/governance.md** - Development protocols and quality standards
 - **.agent/context-routes.yaml** - Semantic routing for problem-solving
+
+### Key Insight (Modules 6-7)
+
+> **ALWAYS check existing files for patterns BEFORE writing new code**
+>
+> - Reading plan adjustment ≠ Applying lessons
+> - Must actively grep and read similar existing files
+> - 5 minutes reviewing saves 30+ minutes debugging
+> - ROI: 6x time savings
 
 ## Important Context Routing
 
