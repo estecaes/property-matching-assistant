@@ -36,3 +36,6 @@
 # VCR cassettes (safe to commit - API keys are filtered)
 # Uncomment next line if you want to ignore cassettes:
 # /spec/fixtures/vcr_cassettes/**/*.yml
+
+# Ignore docs/idea/base
+/docs/idea/base
