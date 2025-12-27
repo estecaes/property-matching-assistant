@@ -2,9 +2,9 @@
 
 Quick reference for tracking progress across all modules.
 
-**Last Updated**: 2025-12-26
-**Current Phase**: Module 4 - Core Complete ✅ (VCR tests pending)
-**Next Action**: Implement VCR tests OR proceed to Module 5
+**Last Updated**: 2025-12-27
+**Current Phase**: Module 5 - Blind Spots Review 🔍
+**Next Action**: Fix 2 CRÍTICO blind spots before Module 6
 
 ---
 
@@ -233,23 +233,69 @@ Quick reference for tracking progress across all modules.
 
 ---
 
-## Module 5: Property Matching ⏸️
+## Module 5: Property Matching ✅
 
-### Prerequisites ❌
+### Core Implementation ✅
 
-- ❌ Module 4 must be complete
+- [x] PropertyMatcher service with scoring algorithm
+- [x] 100-point scoring scale (Budget 40, Bedrooms 30, Area 20, Type 10)
+- [x] City-based filtering (mandatory - returns [] if missing)
+- [x] Transparent scoring with reasons array
+- [x] Case-insensitive matching for all string fields
+- [x] Top 3 results sorted by score descending
+- [x] Complete test coverage (24 examples, 0 failures)
 
-### Planned Implementation
+**Implementation Details**:
+- Budget scoring: Tiered by percentage difference (≤10%: 40pts, ≤20%: 30pts, ≤30%: 20pts)
+- Bedrooms scoring: Exact match 30pts, ±1 bedroom 20pts
+- Area scoring: Exact 20pts, partial match 10pts
+- Property type: Exact match 10pts
+- Defensive design: Missing city returns empty array (prevents irrelevant matches)
 
-- [ ] PropertyMatcher service
-- [ ] Scoring algorithm (100-point scale)
-- [ ] City-based filtering (mandatory)
-- [ ] Transparent scoring with reasons
-- [ ] Tests (100% coverage)
+**Test Results**:
+- PropertyMatcher tests: 24 examples, 0 failures
+- Full test suite: 151 examples, 0 failures (127 existing + 24 new)
+- Coverage: 100% for PropertyMatcher service
 
-**Status**: Not started
+**Status**: Core Complete ✅ (Blind spots pending)
+**Commit**: 1fe40d8
 **Reference**: docs/ai-guidance/05-property-matching.md
-**Estimated Time**: 1 hour
+**Actual Time**: ~45 minutes (TDD approach)
+
+### 🔴 CRÍTICO Pendientes (BLOCKING Module 6)
+
+- [ ] **Fix Budget Zero Division Error**
+  - Priority: 🔴 CRÍTICO
+  - Blocks: Module 6 start
+  - Location: app/services/property_matcher.rb:96 (score_budget method)
+  - Issue: `ZeroDivisionError` if budget == 0
+  - Fix: Add `|| budget.zero?` check before division
+  - Test: Add test case with `{ city: "CDMX", budget: 0 }`
+  - Reference: docs/learning-log/blind-spots/BLIND-SPOTS-MODULE5.md
+  - Effort: 10 minutes
+
+- [ ] **Test String Keys vs Symbol Keys**
+  - Priority: 🔴 CRÍTICO
+  - Blocks: Module 6 integration
+  - Location: spec/services/property_matcher_spec.rb
+  - Issue: Tests only use symbol keys, production uses string keys from JSON
+  - Fix: Add test context with `{ "city" => "CDMX", "budget" => 3000000 }`
+  - Validates: `symbolize_keys` works correctly
+  - Reference: docs/learning-log/blind-spots/BLIND-SPOTS-MODULE5.md
+  - Effort: 5 minutes
+
+### 🟡 IMPORTANTE Pendientes (Recommended)
+
+- [ ] **Add Structured Logging for Edge Cases**
+  - Priority: 🟡 IMPORTANTE
+  - Task: Log when 0 properties in city, <3 results, low scores
+  - Location: app/services/property_matcher.rb:28-36 (call method)
+  - Impact: Improves production observability
+  - Can defer: Yes (can be done during Module 6)
+  - Reference: docs/learning-log/blind-spots/BLIND-SPOTS-MODULE5.md
+  - Effort: 15 minutes
+
+**Blind Spots Analysis**: docs/learning-log/blind-spots/BLIND-SPOTS-MODULE5.md
 
 ---
 
@@ -295,10 +341,10 @@ Quick reference for tracking progress across all modules.
 
 ## Overall Progress
 
-**Modules Completed**: 4 / 8 (50%) - Modules 0-4 core complete
-**Modules with Pendientes**: Module 4 (VCR tests - 1-2 hours, not blocking)
-**Estimated Remaining Time**: 4 hours (Modules 5-7)
-**Current Blockers**: None (VCR tests can be done in parallel)
+**Modules Completed**: 5 / 8 (62.5%) - Modules 0-5 complete
+**Estimated Remaining Time**: ~3 hours (Modules 6-7)
+**Current Blockers**: None
+**Test Suite**: 151 examples, 0 failures
 
 ### Critical Path
 
@@ -306,8 +352,8 @@ Quick reference for tracking progress across all modules.
 2. ✅ Module 1: Foundation
 3. ✅ Module 2: Domain Models
 4. ✅ Module 3: LLM Adapter
-5. ✅ **Module 4: Anti-Injection Core** ⭐ (VCR tests pending)
-6. ⏸️ Module 5: Property Matching
+5. ✅ **Module 4: Anti-Injection Core** ⭐
+6. ✅ **Module 5: Property Matching**
 7. ⏸️ Module 6: API Endpoint
 8. ⏸️ Module 7: Minimal Interface
 
