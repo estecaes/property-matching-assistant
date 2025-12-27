@@ -1,4 +1,6 @@
 class RunsController < ApplicationController
+  before_action :set_use_real_api, only: [:create]
+
   def create
     session = create_session_with_messages
     qualification_result = qualify_lead(session)
@@ -10,6 +12,14 @@ class RunsController < ApplicationController
   end
 
   private
+
+  def set_use_real_api
+    if request.headers['X-Use-Real-API'] == 'true'
+      ENV['USE_REAL_API'] = 'true'
+    else
+      ENV['USE_REAL_API'] = 'false'
+    end
+  end
 
   def create_session_with_messages
     session = ConversationSession.create!

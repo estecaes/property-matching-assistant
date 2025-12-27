@@ -106,6 +106,69 @@
       font-size: 13px;
       margin-top: 20px;
     }
+    details {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 4px solid #007bff;
+    }
+    details summary {
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 10px;
+      user-select: none;
+    }
+    details summary:hover {
+      color: #007bff;
+    }
+    details[open] summary {
+      margin-bottom: 15px;
+    }
+    .custom-input {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .custom-input h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+    .custom-input textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      resize: vertical;
+    }
+    .custom-input .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .custom-input button {
+      padding: 12px 24px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .custom-input button:hover {
+      background: #218838;
+    }
+    .custom-input label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #495057;
+    }
   </style>
 </head>
 <body>
@@ -127,6 +190,24 @@
       Scenario 3: Phone vs Budget<br>
       <small>(Edge case handling)</small>
     </button>
+  </div>
+
+  <div class="custom-input">
+    <h3>Or Test Custom Messages</h3>
+    <textarea id="customMessages" rows="8" placeholder='Enter JSON array of messages:
+
+[
+  {"role": "user", "content": "Busco casa en CDMX, presupuesto 5 millones"},
+  {"role": "assistant", "content": "¿Cuántas recámaras necesitas?"},
+  {"role": "user", "content": "3 recámaras"}
+]'></textarea>
+    <div class="controls">
+      <button onclick="runCustomScenario()">Run Custom Messages</button>
+      <label>
+        <input type="checkbox" id="useRealAPI">
+        Use Real Anthropic API (requires ANTHROPIC_API_KEY in .env)
+      </label>
+    </div>
   </div>
 
   <div id="results" class="results">
@@ -155,6 +236,52 @@
       }
     }
 
+    async function runCustomScenario() {
+      const resultsDiv = document.getElementById('results');
+      const customMessages = document.getElementById('customMessages').value;
+      const useRealAPI = document.getElementById('useRealAPI').checked;
+
+      if (!customMessages.trim()) {
+        resultsDiv.innerHTML = '<div class="alert alert-danger">Please enter messages in JSON format</div>';
+        resultsDiv.classList.add('show');
+        return;
+      }
+
+      resultsDiv.innerHTML = '<div class="loading">Processing custom messages...</div>';
+      resultsDiv.classList.add('show');
+
+      try {
+        const messages = JSON.parse(customMessages);
+
+        if (!Array.isArray(messages)) {
+          throw new Error('Messages must be an array');
+        }
+
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+
+        if (useRealAPI) {
+          headers['X-Use-Real-API'] = 'true';
+        }
+
+        const response = await fetch('/run', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ messages: messages })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        displayResults(data, 'custom');
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="alert alert-danger"><strong>Error:</strong> ${error.message}<br><small>Make sure you entered valid JSON format</small></div>`;
+      }
+    }
+
     function displayResults(data, scenario) {
       const resultsDiv = document.getElementById('results');
 
@@ -175,6 +302,50 @@
             No discrepancies detected, ready for property matching.
           </div>
         `;
+      }
+
+      // Extraction Process Transparency (Anti-Injection Evidence)
+      if (data.extraction_process) {
+        html += '<h2>🔍 Extraction Process (Anti-Injection Evidence)</h2>';
+        html += '<p style="color: #6c757d; margin-bottom: 15px;">This section shows the dual extraction methodology that prevents prompt injection attacks.</p>';
+
+        // Messages
+        html += '<details open>';
+        html += '<summary><strong>1. Conversation Messages</strong></summary>';
+        html += '<p style="font-size: 14px; color: #6c757d;">Messages sent to the LLM for extraction:</p>';
+        html += '<pre class="json-view">' + JSON.stringify(data.extraction_process.messages, null, 2) + '</pre>';
+        html += '</details>';
+
+        // LLM Extraction
+        html += '<details>';
+        html += '<summary><strong>2. LLM Extraction (Context-Aware)</strong></summary>';
+        html += '<p style="font-size: 14px; color: #6c757d;">AI model extracts information using natural language understanding:</p>';
+        html += '<pre class="json-view">' + JSON.stringify(data.extraction_process.llm_extraction, null, 2) + '</pre>';
+        html += '</details>';
+
+        // Heuristic Extraction
+        html += '<details>';
+        html += '<summary><strong>3. Heuristic Extraction (Defensive)</strong></summary>';
+        html += '<p style="font-size: 14px; color: #6c757d;">Regex-based extraction provides independent verification:</p>';
+        html += '<pre class="json-view">' + JSON.stringify(data.extraction_process.heuristic_extraction, null, 2) + '</pre>';
+        html += '</details>';
+
+        // Cross-Validation
+        html += '<details>';
+        html += '<summary><strong>4. Cross-Validation Results</strong></summary>';
+        if (data.discrepancies && data.discrepancies.length > 0) {
+          html += '<p style="font-size: 14px; color: #dc3545;">⚠️ <strong>Discrepancies detected</strong> - LLM and heuristic extractions differ significantly. This triggers human review to prevent potential manipulation.</p>';
+          html += '<ul style="margin-top: 10px;">';
+          data.discrepancies.forEach(disc => {
+            html += `<li><strong>${disc.field}</strong>: ${disc.diff_pct}% difference (${disc.severity} severity)</li>`;
+          });
+          html += '</ul>';
+        } else {
+          html += '<p style="font-size: 14px; color: #28a745;">✅ <strong>No discrepancies found</strong> - LLM and heuristic extractions match. Lead profile is reliable.</p>';
+        }
+        html += '</details>';
+
+        html += '<hr style="margin: 20px 0; border: none; border-top: 1px solid #dee2e6;">';
       }
 
       // Lead Profile
