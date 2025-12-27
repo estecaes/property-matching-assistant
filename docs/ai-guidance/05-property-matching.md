@@ -1,7 +1,8 @@
 # Módulo 5: Property Matching - AI Guidance
 
 **Estimated Time**: 1 hour
-**Status**: Pending
+**Status**: ✅ Complete
+**Actual Time**: ~45 minutes
 **Dependencies**: Module 2 (Models), Module 4 (LeadQualifier)
 
 ---
@@ -327,12 +328,16 @@ end
 
 ## Success Criteria
 
-- [ ] Returns top 3 matches sorted by score
-- [ ] City filter mandatory (returns [] if missing)
-- [ ] Scoring algorithm weights budget > bedrooms > area
-- [ ] Reasons array explains match quality
-- [ ] Tests cover edge cases (no matches, missing city)
+- [x] Returns top 3 matches sorted by score ✅
+- [x] City filter mandatory (returns [] if missing) ✅
+- [x] Scoring algorithm weights budget > bedrooms > area ✅
+- [x] Reasons array explains match quality ✅
+- [x] Tests cover edge cases (no matches, missing city) ✅
+
+**Test Results**: 24 examples, 0 failures
+**Full Suite**: 151 examples, 0 failures
 
 ---
 
-**Last Updated**: 2025-12-20
+**Last Updated**: 2025-12-27
+**Completed**: 2025-12-27
