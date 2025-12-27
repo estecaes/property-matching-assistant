@@ -329,6 +329,15 @@ Quick reference for tracking progress across all modules.
 **Reference**: docs/ai-guidance/06-api-endpoint.md
 **Implementation Time**: ~1 hour (actual) + 30 min debugging (avoidable)
 **Plan Adjustment**: docs/learning-log/MODULE6-PLAN-ADJUSTMENT.md
+**Blind Spots Analysis**: docs/learning-log/blind-spots/BLIND-SPOTS-MODULE6.md
+
+### 🟡 OPCIONAL Improvements (Can Defer)
+
+- ⏸️ Add `missing_city` scenario to FakeClient (15 min)
+- ⏸️ Add structured logging to RunsController success path (10 min)
+- ⏸️ Enhance `without scenario header` test assertions (5 min)
+
+**Total**: ~30 minutes (not blocking Module 7)
 
 ---
 
