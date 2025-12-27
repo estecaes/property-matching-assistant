@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Dashboard - Root path
+  root "dashboard#index"
+
   # Health check endpoint
   get "/health", to: "health#show"
 

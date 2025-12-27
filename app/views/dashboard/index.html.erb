@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Property Matching - Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .scenarios {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .scenario-btn {
+      flex: 1;
+      padding: 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .scenario-btn:hover {
+      background: #0056b3;
+    }
+    .results {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+    }
+    .results.show {
+      display: block;
+    }
+    .alert {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+    .alert-danger {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .alert-success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .profile-item {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .profile-item strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #495057;
+    }
+    .matches {
+      margin-top: 20px;
+    }
+    .match-card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      border-left: 4px solid #28a745;
+    }
+    .discrepancy {
+      background: #fff3cd;
+      border: 1px solid #ffeaa7;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+    .json-view {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Smart Property Matching Assistant</h1>
+    <p>Demo: Anti-injection lead qualification with property matching</p>
+  </div>
+
+  <div class="scenarios">
+    <button class="scenario-btn" onclick="runScenario('budget_seeker')">
+      Scenario 1: Budget Seeker<br>
+      <small>(Happy path)</small>
+    </button>
+    <button class="scenario-btn" onclick="runScenario('budget_mismatch')">
+      Scenario 2: Budget Mismatch<br>
+      <small>(Anti-injection detection)</small>
+    </button>
+    <button class="scenario-btn" onclick="runScenario('phone_vs_budget')">
+      Scenario 3: Phone vs Budget<br>
+      <small>(Edge case handling)</small>
+    </button>
+  </div>
+
+  <div id="results" class="results">
+    <!-- Results will be inserted here -->
+  </div>
+
+  <script>
+    async function runScenario(scenario) {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<div class="loading">Processing...</div>';
+      resultsDiv.classList.add('show');
+
+      try {
+        const response = await fetch('/run', {
+          method: 'POST',
+          headers: {
+            'X-Scenario': scenario,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        displayResults(data, scenario);
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+      }
+    }
+
+    function displayResults(data, scenario) {
+      const resultsDiv = document.getElementById('results');
+
+      let html = '';
+
+      // Alert based on needs_human_review
+      if (data.needs_human_review) {
+        html += `
+          <div class="alert alert-danger">
+            <strong>⚠️ Human Review Required</strong><br>
+            Discrepancies detected between LLM and heuristic extraction.
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="alert alert-success">
+            <strong>✅ Lead Qualified Successfully</strong><br>
+            No discrepancies detected, ready for property matching.
+          </div>
+        `;
+      }
+
+      // Lead Profile
+      html += '<h2>Lead Profile</h2>';
+      html += '<div class="profile-grid">';
+      html += formatProfileItem('Budget', data.lead_profile.budget ? `$${formatCurrency(data.lead_profile.budget)}` : 'N/A');
+      html += formatProfileItem('City', data.lead_profile.city || 'N/A');
+      html += formatProfileItem('Area', data.lead_profile.area || 'N/A');
+      html += formatProfileItem('Bedrooms', data.lead_profile.bedrooms || 'N/A');
+      html += formatProfileItem('Confidence', data.lead_profile.confidence || 'N/A');
+      html += '</div>';
+
+      // Discrepancies
+      if (data.discrepancies && data.discrepancies.length > 0) {
+        html += '<h2>Discrepancies Detected</h2>';
+        data.discrepancies.forEach(disc => {
+          html += `
+            <div class="discrepancy">
+              <strong>Field: ${disc.field}</strong><br>
+              LLM extracted: ${formatValue(disc.llm_value)}<br>
+              Heuristic extracted: ${formatValue(disc.heuristic_value)}<br>
+              ${disc.diff_pct ? `Difference: ${disc.diff_pct}%` : ''}<br>
+              Severity: <span style="color: ${disc.severity === 'high' ? '#dc3545' : '#ffc107'}">${disc.severity}</span>
+            </div>
+          `;
+        });
+      }
+
+      // Property Matches
+      if (data.matches && data.matches.length > 0) {
+        html += '<h2>Property Matches</h2>';
+        html += '<div class="matches">';
+        data.matches.forEach((match, index) => {
+          html += `
+            <div class="match-card">
+              <strong>${index + 1}. ${match.title}</strong><br>
+              Price: $${formatCurrency(match.price)} | Score: ${match.score}/100<br>
+              ${match.city}, ${match.area || 'N/A'} | ${match.bedrooms} beds, ${match.bathrooms} baths<br>
+              <small>Reasons: ${match.reasons.join(', ')}</small>
+            </div>
+          `;
+        });
+        html += '</div>';
+      } else if (data.lead_profile.city) {
+        html += '<h2>Property Matches</h2>';
+        html += '<p>No matching properties found for the specified criteria.</p>';
+      }
+
+      // Metrics
+      html += `
+        <h2>Metrics</h2>
+        <div class="profile-grid">
+          ${formatProfileItem('Processing Time', `${data.metrics.qualification_duration_ms}ms`)}
+          ${formatProfileItem('Conversation Turns', data.metrics.turns_count)}
+          ${formatProfileItem('Status', data.status)}
+        </div>
+      `;
+
+      // JSON View
+      html += `
+        <details>
+          <summary><strong>View Raw JSON Response</strong></summary>
+          <pre class="json-view">${JSON.stringify(data, null, 2)}</pre>
+        </details>
+      `;
+
+      resultsDiv.innerHTML = html;
+    }
+
+    function formatProfileItem(label, value) {
+      return `
+        <div class="profile-item">
+          <strong>${label}</strong>
+          ${value}
+        </div>
+      `;
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('es-MX').format(value);
+    }
+
+    function formatValue(value) {
+      if (typeof value === 'number' && value > 100000) {
+        return `$${formatCurrency(value)}`;
+      }
+      return value;
+    }
+  </script>
+</body>
+</html>
