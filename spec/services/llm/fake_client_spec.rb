@@ -82,39 +82,103 @@ RSpec.describe LLM::FakeClient do
         allow(Rails.logger).to receive(:info)
       end
 
-      it "logs fallback message" do
-        # Mock AnthropicClient to avoid real API call
-        mock_client = instance_double(LLM::AnthropicClient)
-        allow(LLM::AnthropicClient).to receive(:new).and_return(mock_client)
-        allow(mock_client).to receive(:extract_profile).and_return({ budget: 1_000_000 })
+      context "when API key is present" do
+        it "logs fallback message" do
+          mock_client = instance_double(LLM::AnthropicClient)
+          allow(LLM::AnthropicClient).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:extract_profile).and_return({})
 
-        client.extract_profile(messages)
+          client.extract_profile(messages)
 
-        expect(Rails.logger).to have_received(:info).with("No scenario match, falling back to AnthropicClient")
+          expect(Rails.logger).to have_received(:info).with("No scenario match, falling back to AnthropicClient")
+        end
+
+        it "falls back to AnthropicClient" do
+          mock_client = instance_double(LLM::AnthropicClient)
+          allow(LLM::AnthropicClient).to receive(:new).and_return(mock_client)
+          expect(mock_client).to receive(:extract_profile).with(messages).and_return({ budget: 1_500_000 })
+
+          result = client.extract_profile(messages)
+
+          expect(result).to eq({ budget: 1_500_000 })
+        end
       end
 
-      it "delegates to AnthropicClient" do
-        mock_client = instance_double(LLM::AnthropicClient)
-        allow(LLM::AnthropicClient).to receive(:new).and_return(mock_client)
-        expect(mock_client).to receive(:extract_profile).with(messages).and_return({ budget: 1_500_000 })
+      context "when API key is not present" do
+        around do |example|
+          original_key = ENV['ANTHROPIC_API_KEY']
+          ENV['ANTHROPIC_API_KEY'] = nil
+          example.run
+          ENV['ANTHROPIC_API_KEY'] = original_key
+        end
 
-        result = client.extract_profile(messages)
+        it "logs simulation message" do
+          client.extract_profile(messages)
 
-        expect(result).to eq({ budget: 1_500_000 })
+          expect(Rails.logger).to have_received(:info).with("No scenario match, simulating LLM extraction for custom messages")
+        end
+
+        it "simulates LLM extraction" do
+          result = client.extract_profile(messages)
+
+          expect(result).to be_a(Hash)
+          expect(result).to have_key(:confidence)
+        end
       end
     end
 
     context "with nil scenario" do
       before { Current.scenario = nil }
 
-      it "falls back to AnthropicClient" do
-        mock_client = instance_double(LLM::AnthropicClient)
-        allow(LLM::AnthropicClient).to receive(:new).and_return(mock_client)
-        allow(mock_client).to receive(:extract_profile).and_return({})
+      context "when API key is present" do
+        it "falls back to AnthropicClient" do
+          mock_client = instance_double(LLM::AnthropicClient)
+          allow(LLM::AnthropicClient).to receive(:new).and_return(mock_client)
+          allow(mock_client).to receive(:extract_profile).and_return({})
 
-        client.extract_profile(messages)
+          client.extract_profile(messages)
 
-        expect(LLM::AnthropicClient).to have_received(:new)
+          expect(LLM::AnthropicClient).to have_received(:new)
+        end
+      end
+
+      context "when API key is not present" do
+        around do |example|
+          original_key = ENV['ANTHROPIC_API_KEY']
+          ENV['ANTHROPIC_API_KEY'] = nil
+          example.run
+          ENV['ANTHROPIC_API_KEY'] = original_key
+        end
+
+        it "simulates LLM extraction for custom messages" do
+          result = client.extract_profile(messages)
+
+          # Should return simulated extraction based on message content
+          expect(result).to be_a(Hash)
+          expect(result).to have_key(:confidence)
+        end
+
+        it "extracts city from messages" do
+          custom_messages = [
+            { role: "user", content: "Busco depa en CDMX" }
+          ]
+
+          result = client.extract_profile(custom_messages)
+
+          expect(result[:city]).to eq("CDMX")
+          expect(result[:property_type]).to eq("departamento")
+        end
+
+        it "extracts budget using LLM-like logic (first mentioned)" do
+          custom_messages = [
+            { role: "user", content: "Mi presupuesto es 5 millones pero solo tengo 3 millones" }
+          ]
+
+          result = client.extract_profile(custom_messages)
+
+          # LLM picks FIRST mentioned budget
+          expect(result[:budget]).to eq(5_000_000)
+        end
       end
     end
   end
