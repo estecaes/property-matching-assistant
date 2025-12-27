@@ -92,8 +92,18 @@
 
 ## Full Catalog
 
-See [DEMO-EXPERIMENTS.md](./DEMO-EXPERIMENTS.md) for:
+### [DEMO-EXPERIMENTS.md](./DEMO-EXPERIMENTS.md)
+Discrepancy detection patterns:
 - 10 examples with discrepancies
 - 5 examples without discrepancies
 - Detailed patterns and explanations
 - All tested with real Claude Sonnet 4.5 API
+
+### [DEMO-WITH-MATCHES.md](./DEMO-WITH-MATCHES.md)
+Property matching demonstrations:
+- 8 examples guaranteed to return property matches
+- 3 examples with no matches (edge cases)
+- Aligned with seeded database (CDMX, Guadalajara, Monterrey)
+- Shows complete flow: extraction → validation → matching
+
+**Tip:** Use DEMO-WITH-MATCHES examples when you want to show the full end-to-end flow including actual property results.
