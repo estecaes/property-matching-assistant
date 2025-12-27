@@ -130,6 +130,10 @@
       padding: 20px;
       border-radius: 8px;
       margin-bottom: 20px;
+      display: none;
+    }
+    .custom-input.active {
+      display: block;
     }
     .custom-input h3 {
       margin-top: 0;
@@ -150,7 +154,7 @@
       align-items: center;
       margin-top: 10px;
     }
-    .custom-input button {
+    .custom-input .run-button {
       padding: 12px 24px;
       background: #28a745;
       color: white;
@@ -159,7 +163,7 @@
       cursor: pointer;
       font-size: 16px;
     }
-    .custom-input button:hover {
+    .custom-input .run-button:hover {
       background: #218838;
     }
     .custom-input label {
@@ -190,10 +194,14 @@
       Scenario 3: Phone vs Budget<br>
       <small>(Edge case handling)</small>
     </button>
+    <button class="scenario-btn" onclick="toggleCustomInput()">
+      Custom Messages<br>
+      <small>(Test your own examples)</small>
+    </button>
   </div>
 
-  <div class="custom-input">
-    <h3>Or Test Custom Messages</h3>
+  <div class="custom-input" id="customInput">
+    <h3>Test Custom Messages</h3>
     <textarea id="customMessages" rows="8" placeholder='Enter JSON array of messages:
 
 [
@@ -202,7 +210,7 @@
   {"role": "user", "content": "3 recámaras"}
 ]'></textarea>
     <div class="controls">
-      <button onclick="runCustomScenario()">Run Custom Messages</button>
+      <button class="run-button" onclick="runCustomScenario()">Run Custom Messages</button>
       <label>
         <input type="checkbox" id="useRealAPI">
         Use Real Anthropic API (requires ANTHROPIC_API_KEY in .env)
@@ -215,8 +223,27 @@
   </div>
 
   <script>
+    function toggleCustomInput() {
+      const customInput = document.getElementById('customInput');
+      const resultsDiv = document.getElementById('results');
+
+      // Toggle visibility
+      customInput.classList.toggle('active');
+
+      // Clear results when opening custom input
+      if (customInput.classList.contains('active')) {
+        resultsDiv.innerHTML = '';
+        resultsDiv.classList.remove('show');
+      }
+    }
+
     async function runScenario(scenario) {
       const resultsDiv = document.getElementById('results');
+      const customInput = document.getElementById('customInput');
+
+      // Hide custom input when running a scenario
+      customInput.classList.remove('active');
+
       resultsDiv.innerHTML = '<div class="loading">Processing...</div>';
       resultsDiv.classList.add('show');
 
