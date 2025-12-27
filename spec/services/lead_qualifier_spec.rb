@@ -17,16 +17,18 @@ RSpec.describe LeadQualifier do
 
       it "qualifies lead without discrepancies" do
         result = described_class.call(session)
+        session_result = result[:session]
 
-        expect(result.lead_profile["budget"]).to eq(3_000_000)
-        expect(result.lead_profile["city"]).to eq("CDMX")
-        expect(result.lead_profile["area"]).to eq("Roma Norte")
-        expect(result.lead_profile["bedrooms"]).to eq(2)
-        expect(result.lead_profile["property_type"]).to eq("departamento")
-        expect(result.discrepancies).to be_empty
-        expect(result.needs_human_review).to be false
-        expect(result.status).to eq("qualified")
-        expect(result.qualification_duration_ms).to be > 0
+        expect(session_result.lead_profile["budget"]).to eq(3_000_000)
+        expect(session_result.lead_profile["city"]).to eq("CDMX")
+        expect(session_result.lead_profile["area"]).to eq("Roma Norte")
+        expect(session_result.lead_profile["bedrooms"]).to eq(2)
+        expect(session_result.lead_profile["property_type"]).to eq("departamento")
+        expect(session_result.discrepancies).to be_empty
+        expect(session_result.needs_human_review).to be false
+        expect(session_result.status).to eq("qualified")
+        expect(session_result.qualification_duration_ms).to be > 0
+        expect(result[:extraction_process]).to be_present
       end
 
       it "logs qualification result" do
@@ -48,10 +50,11 @@ RSpec.describe LeadQualifier do
 
       it "detects budget discrepancy between LLM and heuristic" do
         result = described_class.call(session)
+        session_result = result[:session]
 
-        expect(result.discrepancies).not_to be_empty
-        
-        budget_disc = result.discrepancies.find { |d| d["field"] == "budget" }
+        expect(session_result.discrepancies).not_to be_empty
+
+        budget_disc = session_result.discrepancies.find { |d| d["field"] == "budget" }
         expect(budget_disc).to be_present
         expect(budget_disc["llm_value"]).to eq(5_000_000)
         expect(budget_disc["heuristic_value"]).to eq(3_000_000)
@@ -61,15 +64,17 @@ RSpec.describe LeadQualifier do
 
       it "marks session as needing human review" do
         result = described_class.call(session)
+        session_result = result[:session]
 
-        expect(result.needs_human_review).to be true
+        expect(session_result.needs_human_review).to be true
       end
 
       it "prefers heuristic value in final profile (defensive)" do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # Final profile should use heuristic's 3M, not LLM's 5M
-        expect(result.lead_profile["budget"]).to eq(3_000_000)
+        expect(session_result.lead_profile["budget"]).to eq(3_000_000)
       end
     end
 
@@ -81,25 +86,28 @@ RSpec.describe LeadQualifier do
 
       it "extracts budget correctly, not phone number" do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # Budget should be 3M, NOT the 10-digit phone number
-        expect(result.lead_profile["budget"]).to eq(3_000_000)
-        expect(result.lead_profile["budget"]).not_to eq(5_512_345_678)
+        expect(session_result.lead_profile["budget"]).to eq(3_000_000)
+        expect(session_result.lead_profile["budget"]).not_to eq(5_512_345_678)
       end
 
       it "heuristic correctly ignores phone number" do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # No discrepancy on budget (both extracted 3M)
-        budget_disc = result.discrepancies.find { |d| d["field"] == "budget" }
+        budget_disc = session_result.discrepancies.find { |d| d["field"] == "budget" }
         expect(budget_disc).to be_nil
       end
 
       it "LLM extracts phone but heuristic does not" do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # Phone should be in final profile (from LLM, no conflict)
-        expect(result.lead_profile["phone"]).to eq("5512345678")
+        expect(session_result.lead_profile["phone"]).to eq("5512345678")
       end
     end
 
@@ -113,11 +121,12 @@ RSpec.describe LeadQualifier do
 
       it "falls back to heuristic-only mode gracefully" do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # Should still qualify using heuristic extraction
-        expect(result.lead_profile["budget"]).to eq(3_000_000)
-        expect(result.lead_profile["city"]).to eq("CDMX")
-        expect(result.status).to eq("qualified")
+        expect(session_result.lead_profile["budget"]).to eq(3_000_000)
+        expect(session_result.lead_profile["city"]).to eq("CDMX")
+        expect(session_result.status).to eq("qualified")
       end
 
       it "logs the error" do
@@ -145,13 +154,14 @@ RSpec.describe LeadQualifier do
 
       VCR.use_cassette("anthropic/phone_vs_budget") do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # Verify with REAL API response
-        expect(result.lead_profile["budget"]).to eq(2_000_000)
-        expect(result.lead_profile["phone"]).to eq("5512345678")
-        expect(result.lead_profile["city"]).to eq("CDMX")
-        expect(result.lead_profile["property_type"]).to eq("departamento")
-        expect(result.status).to eq("qualified")
+        expect(session_result.lead_profile["budget"]).to eq(2_000_000)
+        expect(session_result.lead_profile["phone"]).to eq("5512345678")
+        expect(session_result.lead_profile["city"]).to eq("CDMX")
+        expect(session_result.lead_profile["property_type"]).to eq("departamento")
+        expect(session_result.status).to eq("qualified")
       end
     end
 
@@ -162,11 +172,12 @@ RSpec.describe LeadQualifier do
 
       VCR.use_cassette("anthropic/extract_simple_profile") do
         result = described_class.call(session)
+        session_result = result[:session]
 
-        expect(result.lead_profile["budget"]).to eq(3_000_000)
-        expect(result.lead_profile["city"]).to eq("CDMX")
-        expect(result.lead_profile["property_type"]).to eq("departamento")
-        expect(result.discrepancies).to be_empty
+        expect(session_result.lead_profile["budget"]).to eq(3_000_000)
+        expect(session_result.lead_profile["city"]).to eq("CDMX")
+        expect(session_result.lead_profile["property_type"]).to eq("departamento")
+        expect(session_result.discrepancies).to be_empty
       end
     end
 
@@ -176,10 +187,11 @@ RSpec.describe LeadQualifier do
 
       VCR.use_cassette("anthropic/markdown_wrapped_json") do
         result = described_class.call(session)
+        session_result = result[:session]
 
         # Should parse successfully despite markdown wrapper
-        expect(result.lead_profile).not_to be_empty
-        expect(result.status).to eq("qualified")
+        expect(session_result.lead_profile).not_to be_empty
+        expect(session_result.status).to eq("qualified")
       end
     end
   end
