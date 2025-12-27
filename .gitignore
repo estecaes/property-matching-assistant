@@ -9,7 +9,10 @@
 /vendor/bundle
 
 # Ignore all environment files (except templates).
-/.env*
+/.env
+/.env.local
+/.env.*.local
+!/.env.example
 !/.env*.erb
 
 # Ignore all logfiles and tempfiles.

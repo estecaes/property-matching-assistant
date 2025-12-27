@@ -67,6 +67,12 @@ module LLM
     }.freeze
 
     def extract_profile(messages)
+      # Check if USE_REAL_API is enabled
+      if self.class.should_use_real_api?
+        Rails.logger.info("USE_REAL_API=true, using AnthropicClient")
+        return LLM::AnthropicClient.new.extract_profile(messages)
+      end
+
       scenario_data = SCENARIOS[Current.scenario]
       return scenario_data[:llm_response] if scenario_data
 
@@ -75,7 +81,14 @@ module LLM
       LLM::AnthropicClient.new.extract_profile(messages)
     end
 
+    def self.should_use_real_api?
+      ENV['USE_REAL_API'] == 'true' && ENV['ANTHROPIC_API_KEY'].present?
+    end
+
     def self.scenario_messages(scenario_name)
+      # If USE_REAL_API is true, return empty to allow custom messages
+      return [] if should_use_real_api?
+
       SCENARIOS.dig(scenario_name, :messages) || []
     end
 
