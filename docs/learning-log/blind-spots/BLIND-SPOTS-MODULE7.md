@@ -128,7 +128,7 @@ But the demo shows:
 - No emphasis on transparency or educational value
 - Demo treats anti-injection as black box
 
-**Resolution**: 🚧 **IN PROGRESS** - Implementing Opción B
+**Resolution**: ✅ **RESOLVED** - Opción B fully implemented with all checkpoints complete
 
 ---
 
@@ -159,7 +159,7 @@ But the demo shows:
 - Limited to 3 pre-defined cases
 - Evaluators can't experiment
 
-**Resolution**: 🚧 **IN PROGRESS** - Implementing Opción B
+**Resolution**: ✅ **RESOLVED** - Opción B implemented successfully (Checkpoints 1-7 complete)
 
 ---
 
@@ -551,13 +551,24 @@ services:
 - [x] No JavaScript errors in console
 
 **Added** (Opción B):
-- [ ] Extraction process visible (messages, LLM, heuristic, cross-validation)
-- [ ] Custom message input works
-- [ ] Real API toggle functional (with USE_REAL_API env var)
-- [ ] Transparency shows anti-injection methodology
-- [ ] Demo demonstrates core value proposition
+- [x] Extraction process visible (messages, LLM, heuristic, cross-validation)
+- [x] Custom message input works
+- [x] Real API toggle functional (with USE_REAL_API env var)
+- [x] Transparency shows anti-injection methodology
+- [x] Demo demonstrates core value proposition
 
 ---
 
-**Status**: 🚧 IN PROGRESS - Implementing Opción B
-**Next**: Begin Checkpoint 2 implementation
+**Status**: ✅ COMPLETE - All Opción B checkpoints implemented and verified
+**Implementation Summary**:
+- Dashboard shows extraction process transparency (4 collapsible sections)
+- Custom message input with JSON validation
+- USE_REAL_API toggle via checkbox (sets X-Use-Real-API header)
+- All tests passing (167 examples, 0 failures)
+- Dashboard verified at http://localhost:3001
+- Documentation complete (docs/DEMO-USAGE.md)
+
+**Commits**:
+1. `[Module7] Reorganize plan-adjustments and update governance docs`
+2. `[Module7] Add extraction transparency and custom message input`
+3. `[Module7] Update LeadQualifier specs for new return format`
