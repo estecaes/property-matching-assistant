@@ -48,7 +48,15 @@ class LeadQualifier
 
     log_qualification_result
 
-    @session
+    # Return session AND extraction details for transparency
+    {
+      session: @session,
+      extraction_process: {
+        messages: messages,
+        llm_extraction: llm_profile,
+        heuristic_extraction: heuristic_profile
+      }
+    }
   end
 
   private

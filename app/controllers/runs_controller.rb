@@ -1,10 +1,10 @@
 class RunsController < ApplicationController
   def create
     session = create_session_with_messages
-    qualify_lead(session)
-    matches = match_properties(session)
+    qualification_result = qualify_lead(session)
+    matches = match_properties(qualification_result[:session])
 
-    render json: format_response(session, matches), status: :ok
+    render json: format_response(qualification_result, matches), status: :ok
   rescue StandardError => e
     handle_error(e)
   end
@@ -14,17 +14,21 @@ class RunsController < ApplicationController
   def create_session_with_messages
     session = ConversationSession.create!
 
-    messages = if Current.scenario
+    messages = if params[:messages].present?
+                 # Custom messages from request body
+                 params[:messages]
+               elsif Current.scenario
+                 # FakeClient scenario
                  LLM::FakeClient.scenario_messages(Current.scenario)
                else
-                 # In production, messages would come from request body
+                 # No messages
                  []
                end
 
     messages.each_with_index do |msg, index|
       session.messages.create!(
-        role: msg[:role],
-        content: msg[:content],
+        role: msg[:role] || msg['role'],
+        content: msg[:content] || msg['content'],
         sequence_number: index
       )
     end
@@ -43,7 +47,10 @@ class RunsController < ApplicationController
     PropertyMatcher.call(session.lead_profile)
   end
 
-  def format_response(session, matches)
+  def format_response(qualification_result, matches)
+    session = qualification_result[:session]
+    extraction_process = qualification_result[:extraction_process]
+
     {
       session_id: session.id,
       lead_profile: session.lead_profile,
@@ -54,7 +61,8 @@ class RunsController < ApplicationController
         qualification_duration_ms: session.qualification_duration_ms,
         turns_count: session.turns_count
       },
-      status: session.status
+      status: session.status,
+      extraction_process: extraction_process
     }
   end
 
