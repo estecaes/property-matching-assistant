@@ -5,7 +5,7 @@ http_interactions:
     uri: https://api.anthropic.com/v1/messages
     body:
       encoding: UTF-8
-      string: '{"model":"claude-3-5-sonnet-20241022","max_tokens":1024,"messages":[{"role":"user","content":"Something unusual"}]}'
+      string: '{"model":"claude-sonnet-4-5","max_tokens":1024,"messages":[{"role":"user","content":"Something unusual"}]}'
     headers:
       Content-Type:
       - application/json

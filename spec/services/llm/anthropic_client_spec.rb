@@ -276,7 +276,7 @@ RSpec.describe LLM::AnthropicClient do
     it "builds request with correct model" do
       request = client.send(:build_request, messages)
 
-      expect(request[:model]).to eq("claude-3-5-sonnet-20241022")
+      expect(request[:model]).to eq("claude-sonnet-4-5")
     end
 
     it "sets max_tokens to 1024" do

@@ -5,7 +5,7 @@ module LLM
   # Client for Anthropic Claude API integration
   #
   # Handles lead qualification by extracting structured profile data from conversation messages
-  # using Claude 3.5 Sonnet model.
+  # using Claude Sonnet 4.5 model.
   #
   # Error Handling:
   # - Missing API key: Raises on initialization with clear error message
@@ -22,7 +22,9 @@ module LLM
   #
   class AnthropicClient
     CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
-    CLAUDE_MODEL = "claude-3-5-sonnet-20241022"
+    # Updated to Claude Sonnet 4.5 (Claude 3.5 Sonnet retired December 2025)
+    # Can be overridden via CLAUDE_MODEL environment variable
+    CLAUDE_MODEL = ENV.fetch('CLAUDE_MODEL', 'claude-sonnet-4-5')
 
     def initialize
       @api_key = ENV["ANTHROPIC_API_KEY"]
