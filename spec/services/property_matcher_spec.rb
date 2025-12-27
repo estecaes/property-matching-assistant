@@ -387,5 +387,56 @@ RSpec.describe PropertyMatcher do
         expect(perfect[:reasons]).to include("property_type_match")
       end
     end
+
+    context "with string keys (production JSON format)" do
+      let(:profile) do
+        {
+          "budget" => 3_000_000,
+          "city" => "CDMX",
+          "area" => "Roma Norte",
+          "bedrooms" => 2,
+          "property_type" => "departamento"
+        }
+      end
+
+      it "handles string keys correctly via symbolize_keys" do
+        results = described_class.call(profile)
+
+        expect(results).not_to be_empty
+        expect(results.first[:id]).to eq(perfect_match.id)
+        expect(results.first[:score]).to eq(100)
+      end
+
+      it "matches and scores identically to symbol keys" do
+        string_results = described_class.call(profile)
+        symbol_results = described_class.call(profile.symbolize_keys)
+
+        expect(string_results.first[:score]).to eq(symbol_results.first[:score])
+        expect(string_results.first[:reasons]).to eq(symbol_results.first[:reasons])
+      end
+    end
+
+    context "with zero budget" do
+      let(:profile) do
+        {
+          budget: 0,
+          city: "CDMX",
+          bedrooms: 2
+        }
+      end
+
+      it "does not crash (handles zero division)" do
+        expect { described_class.call(profile) }.not_to raise_error
+      end
+
+      it "returns matches without budget scoring" do
+        results = described_class.call(profile)
+
+        expect(results).not_to be_empty
+        # Score should only include bedrooms (30 max), no budget component
+        expect(results.first[:score]).to be <= 30
+        expect(results.first[:reasons]).not_to include("budget_exact_match")
+      end
+    end
   end
 end

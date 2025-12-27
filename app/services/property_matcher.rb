@@ -87,7 +87,7 @@ class PropertyMatcher
   end
 
   def score_budget(price, budget)
-    return 0 if price.nil? || budget.nil?
+    return 0 if price.nil? || budget.nil? || budget.zero?
 
     # Calculate percentage difference
     diff_pct = ((price - budget).abs.to_f / budget * 100)
