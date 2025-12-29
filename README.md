@@ -18,6 +18,91 @@ docker compose run --rm app rails db:seed
 open http://localhost:3001
 ```
 
+## About This Demo
+
+### Business Context
+This demo simulates a **lead qualification assistant** for real estate platforms - specifically solving the challenge of extracting structured buyer preferences from unstructured conversations while protecting against LLM manipulation or hallucination.
+
+**Real-world use case**: A broker's assistant talks to a prospective buyer via WhatsApp/chat. The system needs to:
+- Extract budget, location, bedroom count reliably
+- Match against property inventory
+- Flag conversations where the LLM's extraction seems inconsistent with user's actual text
+
+### Where This Fits in a Real System
+```
+┌─────────────────────────────────────────────┐
+│   Conversational Interface                  │
+│   (WhatsApp API / Web Chat / SMS)           │
+└─────────────────┬───────────────────────────┘
+                  │
+                  ▼
+         ┌────────────────────┐
+         │  This Demo Module  │ ◄── Anti-injection validation
+         │  Lead Qualifier    │ ◄── Property matching
+         └────────┬───────────┘
+                  │
+                  ▼
+    ┌─────────────────────────────┐
+    │  Broker Dashboard           │
+    │  - Qualified leads          │
+    │  - Discrepancy alerts       │
+    │  - Property recommendations │
+    └─────────────────────────────┘
+```
+
+**Integration points**:
+- **Input**: Chat messages from any conversational interface
+- **Output**: Structured lead profile + property matches + review flags
+- **Human-in-the-loop**: Broker reviews leads marked `needs_human_review: true`
+
+### Key Technical Approach
+
+**Dual extraction with cross-validation**:
+- LLM + heuristic both extract data independently
+- Compare results and flag >20% discrepancies
+- Makes LLM manipulation/hallucination observable
+
+**Example**:
+```json
+{
+  "llm_extraction": {"budget": 5000000},      // LLM says 5M
+  "heuristic_extraction": {"budget": 3000000}, // Regex finds "3 millones"
+  "discrepancies": [{
+    "field": "budget",
+    "llm": 5000000,
+    "heuristic": 3000000,
+    "diff_pct": 66.7
+  }],
+  "needs_human_review": true  // ← Broker gets alerted
+}
+```
+
+### What to Review First (Quick Navigation)
+
+**For architecture/design evaluation** (15-20 min):
+1. [REVIEWER-GUIDE.md](docs/REVIEWER-GUIDE.md) - Start here for complete walkthrough
+2. [ADR-002: Anti-Injection Strategy](docs/architecture/adr-002-anti-injection-strategy.md) - Core decision rationale
+3. [app/services/lead_qualifier.rb](app/services/lead_qualifier.rb) - Lines 181-224: cross-validation logic
+4. [spec/services/lead_qualifier_spec.rb](spec/services/lead_qualifier_spec.rb) - 172 passing tests, focus on anti-injection
+
+**For live testing** (10 min):
+1. Run Quick Start above to get dashboard running
+2. Try [DEMO-QUICK-REFERENCE.md](docs/DEMO-QUICK-REFERENCE.md) examples
+3. See [DEMO-EXPERIMENTS.md](docs/DEMO-EXPERIMENTS.md) for 15 real API test results
+
+**For development process transparency** (5-10 min):
+1. [docs/learning-log/](docs/learning-log/) - Challenges encountered during development
+2. [.agent/governance.md](.agent/governance.md) - AI-assisted development rules
+3. Git history shows natural development progression (not bulk commits)
+
+### Development Transparency
+
+Built using AI-assisted development (Claude Code, GitHub Copilot) with architectural oversight. Process documented in:
+
+- [docs/ai-guidance/](docs/ai-guidance/) - Module-specific instructions given to AI
+- [docs/learning-log/](docs/learning-log/) - Challenges, iterations, and decisions
+- [docs/architecture/](docs/architecture/) - Architecture Decision Records
+
 ## Demo Usage
 
 See **[docs/SETUP-DEMO.md](docs/SETUP-DEMO.md)** for complete demo setup and testing guide.
@@ -203,6 +288,7 @@ Health check endpoint.
 
 ## Project Documentation
 
+- **[REVIEWER-GUIDE.md](docs/REVIEWER-GUIDE.md)** ⭐ - Start here for complete walkthrough (15-30 min)
 - **[CLAUDE.md](CLAUDE.md)** - AI development guidelines
 - **[docs/ai-guidance/](docs/ai-guidance/)** - Module-specific implementation guides
 - **[docs/architecture/](docs/architecture/)** - Architecture Decision Records (ADRs)
