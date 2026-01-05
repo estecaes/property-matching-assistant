@@ -20,6 +20,6 @@ class CreateProperties < ActiveRecord::Migration[7.2]
     add_index :properties, :price
     add_index :properties, :bedrooms
     add_index :properties, :active
-    add_index :properties, [:city, :active]  # Composite for filtering
+    add_index :properties, [ :city, :active ]  # Composite for filtering
   end
 end

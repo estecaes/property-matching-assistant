@@ -42,7 +42,7 @@ class LeadQualifier
     @session.lead_profile = final_profile
     @session.discrepancies = discrepancies
     @session.needs_human_review = requires_review?(discrepancies)
-    @session.qualification_duration_ms = [((Time.current - @start_time) * 1000).to_i, 1].max
+    @session.qualification_duration_ms = [ ((Time.current - @start_time) * 1000).to_i, 1 ].max
     @session.status = "qualified"
     @session.save!
 
@@ -118,7 +118,7 @@ class LeadQualifier
   end
 
   def extract_city(text)
-    cities = ["CDMX", "Ciudad de México", "Guadalajara", "Monterrey", "Querétaro", "Puebla"]
+    cities = [ "CDMX", "Ciudad de México", "Guadalajara", "Monterrey", "Querétaro", "Puebla" ]
 
     cities.each do |city|
       return "CDMX" if text.match?(/\b#{Regexp.escape(city)}\b/i) && city.match?(/CDMX|Ciudad de México/)
@@ -183,7 +183,7 @@ class LeadQualifier
     discrepancies = []
 
     # Compare numeric fields with percentage difference
-    numeric_fields = [:budget, :bedrooms, :bathrooms]
+    numeric_fields = [ :budget, :bedrooms, :bathrooms ]
 
     numeric_fields.each do |field|
       llm_val = llm[field]
@@ -193,7 +193,7 @@ class LeadQualifier
       next if llm_val == heur_val
 
       # Calculate percentage difference
-      diff_pct = (((llm_val - heur_val).abs.to_f / [llm_val, heur_val].max) * 100).round(1)
+      diff_pct = (((llm_val - heur_val).abs.to_f / [ llm_val, heur_val ].max) * 100).round(1)
 
       discrepancies << {
         field: field.to_s,
@@ -205,7 +205,7 @@ class LeadQualifier
     end
 
     # Compare string fields (exact match)
-    string_fields = [:city, :area, :property_type]
+    string_fields = [ :city, :area, :property_type ]
 
     string_fields.each do |field|
       llm_val = llm[field]

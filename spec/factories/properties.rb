@@ -9,7 +9,7 @@ FactoryBot.define do
     bathrooms { 2 }
     square_meters { 100 }
     property_type { "casa" }
-    features { { "parking" => 1, "amenities" => ["Gimnasio", "Seguridad 24/7"] } }
+    features { { "parking" => 1, "amenities" => [ "Gimnasio", "Seguridad 24/7" ] } }
     active { true }
 
     trait :departamento do

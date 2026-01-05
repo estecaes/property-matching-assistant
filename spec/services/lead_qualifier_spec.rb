@@ -115,7 +115,7 @@ RSpec.describe LeadQualifier do
       before do
         Current.scenario = "budget_seeker"
         create_messages(session, LLM::FakeClient.scenario_messages("budget_seeker"))
-        
+
         allow_any_instance_of(LLM::FakeClient).to receive(:extract_profile).and_raise(StandardError.new("API timeout"))
       end
 

@@ -9,7 +9,7 @@ class CreateMessages < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :messages, [:conversation_session_id, :sequence_number], unique: true
+    add_index :messages, [ :conversation_session_id, :sequence_number ], unique: true
     add_index :messages, :created_at
   end
 end

@@ -20,7 +20,7 @@ VCR.configure do |config|
 
   # Configure matching to ignore certain request differences
   config.default_cassette_options = {
-    match_requests_on: [:method, :uri, :body],
+    match_requests_on: [ :method, :uri, :body ],
     record: :once, # Record cassette once, then replay
     allow_playback_repeats: true
   }

@@ -1,5 +1,5 @@
 class RunsController < ApplicationController
-  before_action :set_use_real_api, only: [:create]
+  before_action :set_use_real_api, only: [ :create ]
 
   def create
     session = create_session_with_messages
@@ -14,10 +14,10 @@ class RunsController < ApplicationController
   private
 
   def set_use_real_api
-    if request.headers['X-Use-Real-API'] == 'true'
-      ENV['USE_REAL_API'] = 'true'
+    if request.headers["X-Use-Real-API"] == "true"
+      ENV["USE_REAL_API"] = "true"
     else
-      ENV['USE_REAL_API'] = 'false'
+      ENV["USE_REAL_API"] = "false"
     end
   end
 
@@ -27,18 +27,18 @@ class RunsController < ApplicationController
     messages = if params[:messages].present?
                  # Custom messages from request body
                  params[:messages]
-               elsif Current.scenario
+    elsif Current.scenario
                  # FakeClient scenario
                  LLM::FakeClient.scenario_messages(Current.scenario)
-               else
+    else
                  # No messages
                  []
-               end
+    end
 
     messages.each_with_index do |msg, index|
       session.messages.create!(
-        role: msg[:role] || msg['role'],
-        content: msg[:content] || msg['content'],
+        role: msg[:role] || msg["role"],
+        content: msg[:content] || msg["content"],
         sequence_number: index
       )
     end
@@ -78,14 +78,14 @@ class RunsController < ApplicationController
 
   def handle_error(error)
     Rails.logger.error({
-      event: 'run_error',
+      event: "run_error",
       error_class: error.class.name,
       error_message: error.message,
       backtrace: error.backtrace.first(5)
     }.to_json)
 
     render json: {
-      error: 'Internal server error',
+      error: "Internal server error",
       message: error.message
     }, status: :internal_server_error
   end

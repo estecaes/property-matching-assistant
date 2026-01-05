@@ -199,7 +199,7 @@ RSpec.describe LLM::AnthropicClient do
 
         result = client.send(:call_api, request_body)
 
-        expect(result).to eq({ "content" => [{ "text" => "response" }] })
+        expect(result).to eq({ "content" => [ { "text" => "response" } ] })
       end
     end
 

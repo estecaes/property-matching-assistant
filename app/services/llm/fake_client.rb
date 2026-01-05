@@ -77,7 +77,7 @@ module LLM
       return scenario_data[:llm_response] if scenario_data
 
       # Fallback: If API key is present (e.g., VCR tests), use AnthropicClient
-      if ENV['ANTHROPIC_API_KEY'].present?
+      if ENV["ANTHROPIC_API_KEY"].present?
         Rails.logger.info("No scenario match, falling back to AnthropicClient")
         return LLM::AnthropicClient.new.extract_profile(messages)
       end
@@ -88,7 +88,7 @@ module LLM
     end
 
     def self.should_use_real_api?
-      ENV['USE_REAL_API'] == 'true' && ENV['ANTHROPIC_API_KEY'].present?
+      ENV["USE_REAL_API"] == "true" && ENV["ANTHROPIC_API_KEY"].present?
     end
 
     private
@@ -99,7 +99,7 @@ module LLM
     # - More flexible with synonyms
     # - Adds confidence scoring
     def simulate_llm_extraction(messages)
-      combined_text = messages.map { |m| m[:content] || m['content'] }.join(" ")
+      combined_text = messages.map { |m| m[:content] || m["content"] }.join(" ")
 
       result = {}
 
@@ -144,11 +144,11 @@ module LLM
       # Add confidence based on how much data was extracted
       result[:confidence] = if result.keys.size >= 3
                               "high"
-                            elsif result.keys.size >= 2
+      elsif result.keys.size >= 2
                               "medium"
-                            else
+      else
                               "low"
-                            end
+      end
 
       result
     end

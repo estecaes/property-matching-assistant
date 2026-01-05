@@ -28,7 +28,7 @@ RSpec.describe LLM::AnthropicClient, :vcr do
           expect(profile[:budget]).to be_a(Integer)
           expect(profile[:budget]).to be_between(2_900_000, 3_100_000) # Allow some variation
           expect(profile[:city]).to eq("CDMX")
-          expect(profile[:confidence]).to be_in(["high", "medium", "low"])
+          expect(profile[:confidence]).to be_in([ "high", "medium", "low" ])
         end
       end
     end

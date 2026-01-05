@@ -5,7 +5,7 @@ ConversationSession.destroy_all
 puts "Creating properties..."
 
 # CDMX Properties
-cdmx_areas = ["Roma Norte", "Condesa", "Polanco", "Del Valle", "Coyoacán", "Santa Fe"]
+cdmx_areas = [ "Roma Norte", "Condesa", "Polanco", "Del Valle", "Coyoacán", "Santa Fe" ]
 cdmx_areas.each_with_index do |area, index|
   2.times do |i|
     Property.create!(
@@ -20,7 +20,7 @@ cdmx_areas.each_with_index do |area, index|
       property_type: i.even? ? "departamento" : "casa",
       features: {
         parking: rand(1..3),
-        amenities: ["Gimnasio", "Roof Garden", "Seguridad 24/7"].sample(2)
+        amenities: [ "Gimnasio", "Roof Garden", "Seguridad 24/7" ].sample(2)
       },
       active: true
     )
@@ -28,7 +28,7 @@ cdmx_areas.each_with_index do |area, index|
 end
 
 # Guadalajara Properties
-gdl_areas = ["Providencia", "Chapalita", "Zapopan", "Tlaquepaque"]
+gdl_areas = [ "Providencia", "Chapalita", "Zapopan", "Tlaquepaque" ]
 gdl_areas.each do |area|
   2.times do |i|
     Property.create!(
@@ -47,7 +47,7 @@ gdl_areas.each do |area|
 end
 
 # Monterrey Properties
-mty_areas = ["San Pedro", "Cumbres", "Valle Oriente"]
+mty_areas = [ "San Pedro", "Cumbres", "Valle Oriente" ]
 mty_areas.each do |area|
   2.times do |i|
     Property.create!(

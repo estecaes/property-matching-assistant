@@ -24,7 +24,7 @@ module LLM
     CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
     # Updated to Claude Sonnet 4.5 (Claude 3.5 Sonnet retired December 2025)
     # Can be overridden via CLAUDE_MODEL environment variable
-    CLAUDE_MODEL = ENV.fetch('CLAUDE_MODEL', 'claude-sonnet-4-5')
+    CLAUDE_MODEL = ENV.fetch("CLAUDE_MODEL", "claude-sonnet-4-5")
 
     def initialize
       @api_key = ENV["ANTHROPIC_API_KEY"]

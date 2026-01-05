@@ -63,7 +63,7 @@ RSpec.describe Message, type: :model do
 
     describe ".ordered" do
       it "returns messages ordered by sequence_number" do
-        expect(Message.ordered.pluck(:sequence_number)).to eq([0, 1, 2])
+        expect(Message.ordered.pluck(:sequence_number)).to eq([ 0, 1, 2 ])
       end
     end
 
